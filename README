@@ -1,0 +1,11 @@
+Make sure you have susynt-read and Superflow checked-out:
+
+https://github.com/susynt/susynt-read
+https://github.com/dantrim/Superflow
+
+Once susynt-read is checked out, and compiled, check out Superflow and this package,
+then simply recompile.
+
+Once successful, simply do:
+
+makeMiniNtuple -f file_name -n number_of_events
