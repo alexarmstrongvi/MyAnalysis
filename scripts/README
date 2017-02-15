@@ -2,12 +2,13 @@ This folder is where the final flat ntuples for each background are combined and
 
 chain_process.py         - uses TChain to combine all the output files from grid submission into ntuples for data and each background
 make_stack_plots.py      - main plotter script with global variables that makes stack plots 
-make_comparison_plots.py - plots emu vs mue for data
+make_comparison_plots.py - plots emu vs mue for data and MC
 make_fpT_plot.py         - plots f(pT) 
 dsid_filelist            - directory with all the dsids stored in txt files. Used by chain_process and condor submission script
 
 My usual process
 0) Grid jobs are completed and in the outputs directory
-1) python chain_process.py
-2) hadd LFV_CENTRAL.root *.root
-3) source makePlots.sh 
+1) hadd 410000_CENTRAL.root 410000_CENTRAL_* (in output directory)
+2) python chain_process.py
+3) hadd LFV_CENTRAL.root *.root
+4) source makePlots.sh 

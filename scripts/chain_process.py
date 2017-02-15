@@ -8,7 +8,7 @@ import ROOT as r
 
 #output_filename = "mc15_higgs"
 #output_filelist = ["data","mc15_ttbar","mc15_singletop","mc15_ttv","mc15_higgs","mc15_dibosons","mc15_tribosons","mc15_wjets","mc15_zjets"]
-output_filelist = ["data","mc15_tt+Wt","mc15_higgs","mc15_ZV+WW+VVV","mc15_wjets","mc15_zjets"]
+output_filelist = ["data","mc15_tt+Wt","mc15_higgs","mc15_ZV+WW+VVV","mc15_wjets","mc15_zjets","mc15_LFVsignal"]
 directory_with_inputs = "/data/uclhc/uci/user/armstro1/analysis_n0228/inputs_LFV/"
 directory_with_files = "/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/outputs/"
 missing_dsid = open(directory_with_files+'missing.txt','w')
@@ -64,7 +64,7 @@ def main() :
         for root_f in root_files :
             chain.Add(root_f)
         
-        output_file = r.TFile("%s_CENTRAL.root"%filename,"RECREATE")
+        output_file = r.TFile("/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/%s_CENTRAL.root"%filename,"RECREATE")
         chain.SetName("%s_CENTRAL"%filename)
         chain.Write()
         #chain.CloneTree(-1,"fast");

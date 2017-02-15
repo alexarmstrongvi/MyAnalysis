@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
     printf("makeMiniNtuple\t Cannot understand input %s",input_file);
     return 0;  
   }
-
+  
   Superflow* cutflow = new Superflow(); // initialize the cutflow
   cutflow->setAnaName("SuperflowAna");                // arbitrary
   cutflow->setAnaType(AnalysisType::Ana_2Lep);        // analysis type, passed to SusyNt
@@ -225,10 +225,10 @@ int main(int argc, char* argv[])
       return (sl->leptons->size() == 2);
   };
 
-  *cutflow << CutName("opposite sign muon and electron") << [&](Superlink* sl) -> bool {
-      return ((sl->leptons->at(0)->isEle() && sl->leptons->at(1)->isMu() && sl->leptons->at(0)->q!=sl->leptons->at(1)->q) ||
-              (sl->leptons->at(1)->isEle() && sl->leptons->at(0)->isMu() && sl->leptons->at(0)->q!=sl->leptons->at(1)->q));
-  };
+//  *cutflow << CutName("opposite sign muon and electron") << [&](Superlink* sl) -> bool {
+//      return ((sl->leptons->at(0)->isEle() && sl->leptons->at(1)->isMu() && sl->leptons->at(0)->q!=sl->leptons->at(1)->q) ||
+//              (sl->leptons->at(1)->isEle() && sl->leptons->at(0)->isMu() && sl->leptons->at(0)->q!=sl->leptons->at(1)->q));
+//  };
   *cutflow << CutName("leading lepton pt >= 20GeV") << [](Superlink* sl) -> bool {
       return (sl->leptons->at(0)->pt>=20);
   };
@@ -273,6 +273,63 @@ int main(int argc, char* argv[])
     }; 
     *cutflow << SaveVar(); 
   }
+
+  *cutflow << NewVar("HLT_mu18_mu8noL1 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_mu18_mu8noL1");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu18_mu8noL1"); };
+      *cutflow << SaveVar();
+  }  
+
+  *cutflow << NewVar("HLT_2e12_lhloose_L12EM10VH trigger bit"); {
+      *cutflow << HFTname("pass_HLT_2e12_lhloose_L12EM10VH");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_2e12_lhloose_L12EM10VH"); };
+      *cutflow << SaveVar();
+  }  
+
+  *cutflow << NewVar("HLT_e17_lhloose_mu14 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e17_lhloose_mu14");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e17_lhloose_mu14"); };
+      *cutflow << SaveVar();
+  }  
+
+  *cutflow << NewVar("HLT_mu20_mu8noL1 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_mu20_mu8noL1");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu20_mu8noL1"); };
+      *cutflow << SaveVar();
+  }  
+
+  *cutflow << NewVar("HLT_2e15_lhvloose_L12EM13VH trigger bit"); {
+      *cutflow << HFTname("pass_HLT_2e15_lhvloose_L12EM13VH");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_2e15_lhvloose_L12EM13VH"); };
+      *cutflow << SaveVar();
+  } 
+
+  *cutflow << NewVar("HLT_2e17_lhvloose_nod0 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_2e17_lhvloose_nod0");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_2e17_lhvloose_nod0"); };
+      *cutflow << SaveVar();
+  } 
+
+  *cutflow << NewVar("HLT_mu22_mu8noL1 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_mu22_mu8noL1");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu22_mu8noL1"); };
+      *cutflow << SaveVar();
+  } 
+
+  *cutflow << NewVar("HLT_e17_lhloose_nod0_mu14 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e17_lhloose_nod0_mu14");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e17_lhloose_nod0_mu14"); };
+      *cutflow << SaveVar();
+  } 
+
+  *cutflow << NewVar("treatAsYear"); { 
+      *cutflow << HFTname("treatAsYear");
+      *cutflow << [](Superlink* sl, var_double*) -> int { 
+          return sl->nt->evt()->treatAsYear;
+      };
+      *cutflow << SaveVar();
+  }
+
 
   // Accesing objects through superlink and assigning them to internal variables 
   LeptonVector baseLeptons, signalLeptons;
@@ -552,6 +609,30 @@ int main(int argc, char* argv[])
       vector<double> out;
       for(auto& jet : baseJets) {
         out.push_back(jet->Eta());
+      }
+      return out;
+    };
+    *cutflow << SaveVar();
+  }
+
+  *cutflow << NewVar("jet JVT"); {
+    *cutflow << HFTname("j_jvt");
+    *cutflow << [&](Superlink* /*sl*/, var_float_array*) -> vector<double> {
+      vector<double> out;
+      for(auto& jet : baseJets) {
+        out.push_back(jet->jvt);
+      }
+      return out;
+    };
+    *cutflow << SaveVar();
+  }
+
+  *cutflow << NewVar("jet JVF"); {
+    *cutflow << HFTname("j_jvf");
+    *cutflow << [&](Superlink* /*sl*/, var_float_array*) -> vector<double> {
+      vector<double> out;
+      for(auto& jet : baseJets) {
+        out.push_back(jet->jvf);
       }
       return out;
     };

@@ -15,21 +15,18 @@ log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/%s/logs/"%(userNa
 tarred_dir          = "analysis_%s/"%(susyNtType)
 filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_%s/"%(userName,susyNtType,ana_type)
 in_job_filelist_dir = "/analysis_%s/inputs_%s/"%(susyNtType,ana_type)
-samples             = [ #"mc15_dibosons"      ,
-                        #"mc15_tribosons"     ,
-                        #"mc15_ttbar"         ,
-                        #"mc15_singletop"     ,
-                        #"mc15_ttv"           ,
-                        #"mc15_wjets"         ,
-                        #"mc15_zjets"         ,
-                        #"mc15_higgs"         ,
-                        "mc15_LFVsignal"]#     ,
-                        #"mc15_c1c1_slepslep" ,
-                        #"mc15_SlepSlep"      ,
-                        #"data_all"           , 
+samples             = [ "mc15_dibosons"      ,
+                        "mc15_tribosons"     ,
+                        "mc15_ttbar"         ,
+                        "mc15_singletop"     ,
+                        "mc15_ttv"           ,
+                        "mc15_wjets"         ,
+                        "mc15_zjets"         ,
+                        "mc15_higgs"         ,
+                        "mc15_LFVsignal"    ,
+                        "data_all"]#           , 
                         #"data15"             ,
                         #"data16"]            
-                        ##"mcSusyNt"]
 
 doBrick = True
 doLocal = True 
@@ -39,7 +36,7 @@ doUC    = False
 def main() :
     print "SubmitCondorSF"
 
-    submitMissing=False
+    submitMissing=True
     if submitMissing:
         missing_dsids     = []
         missing_dsid_file = open('%s/missing.txt'%(out_dir))
@@ -83,6 +80,10 @@ def main() :
                 print "You must call this script from the output directory where the ntuples will be stored!"
                 print " >>> Expected submission directory : %s"%os.path.abspath(out_dir)
                 sys.exit()
+            
+            if s.endswith('DWNLD'): 
+                dataset = dataset + '/' 
+                print "    >> %s"%dataset        
 
             run_cmd = "ARGS="
             run_cmd += '"'

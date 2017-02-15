@@ -50,15 +50,6 @@ def main():
         sample = ['mc15_higgs','mc15_ZV+WW+VVV','mc15_zjets','mc15_tt+Wt','mc15_wjets']
     else: print 'ERROR: unrecognized input type. Choose \"data\" or \"MC\"' 
 
-    # Define the selection you want to apply
-    # here you can simply define a TCut based on the variables you have in your file, i.e. select = "mll>40." etc.    
-    BaseSel = 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4'
-    DiLepSel = ['dilep_flav == 0','dilep_flav == 1'] # 0->emu, 1->mue, 2->ee, 3->mumu  
-    OpSel = 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0'
-    SymSel = 'l_pt[0] >= 20 && l_pt[1]>=20 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4'
-    SRnoJets = 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 &&' + OpSel + ' && ' + "nCentralLJets == 0 && nCentralBJets==0 && (dilep_flav == 0 || dilep_flav == 1)"
-    SRwJets  = 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0  && nCentralLJets >= 1 && nCentralBJets==0 && (dilep_flav == 0 || dilep_flav == 1)' 
-
     # Define the variable you want to plot
     # Again this should be in the ROOT file above
     if variable == 'l1_pt':
@@ -143,13 +134,10 @@ def main():
             if inputType == 'data':
                 (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'(%s)'%(selectionList[hist]),'goff')
             else:
-                (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'%s*eventweight*(%s)'%(luminosity,selectionList[hist]),'goff')
+                (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[hist],Sel['trigger']),'goff')
             htemp.Add(samhist)
-            #print "\tIntegral of sample hist :%f"%(samhist.IntegralAndError(0,-1,ROOT.Double(0.)))
-            #print "\tIntegral of temp hist  :%f"%(htemp.IntegralAndError(0,-1,ROOT.Double(0.)))
             samhist.Clear()
         histList[hist] = htemp.Clone()
-        #print "Integral of total hist  :%f"%(histList[hist].IntegralAndError(0,-1,ROOT.Double(0.)))
         histList[hist].SetMarkerColor(histColor[hist])
         histList[hist].SetMinimum(yMin)
         #histList[hist].SetMaximum(yMax) 
@@ -199,7 +187,7 @@ def main():
     ROOT.gPad.SetLogy(True)
     ROOT.gPad.RedrawAxis()
     # Save
-    canvas.SaveAs('LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
+    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
     canvas.Close()
 
 if __name__ == "__main__":
