@@ -4,7 +4,7 @@ from make_stack_plot import Sel, inputFile
 
 def main():
     # User defined variables
-    sampleName      = 'data_CENTRAL'
+    sampleName      = 'data_all'
     histList        = {'l_pt_emu':0., 'l_pt_mue':0.}
     variableList    = {'l_pt_emu': 'l_pt[1]','l_pt_mue': 'l_pt[1]'} 
  
@@ -64,7 +64,7 @@ def main():
     # leg.Draw()
     # ROOT.gPad.SetLogy(True)
     # Save and Exit
-    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/plots/LFV_plot_f(pT).eps') 
+    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0231_run/plots/LFV_plot_f(pT).eps') 
 
 if __name__ == '__main__':
     main()

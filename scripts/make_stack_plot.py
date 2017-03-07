@@ -33,24 +33,20 @@ def dummifyHistogram(histo):
 # Selections used in LFV INT note. Global so it can be used in other plotting scripts
 Sel = {
     'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
-                    && (dilep_flav == 0 || dilep_flav == 1) && l_q[0]*l_q[1]<0',
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
     'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
-                    && (dilep_flav == 0 || dilep_flav == 1) && l_q[0]*l_q[1]<0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0 \
                     && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
     'SymSel'    : 'l_pt[0] >= 20 && l_pt[1]>=20 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
-                    && (dilep_flav == 0 || dilep_flav == 1) && l_q[0]*l_q[1]<0',
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
     'SRnoJets'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
                     && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 \
-                    && nCentralLJets == 0 && nCentralBJets==0 \
-                    && (dilep_flav == 0 || dilep_flav == 1) && l_q[0]*l_q[1]<0',
+                    && nCentralLJets==0 && nCentralBJets==0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
     'SRwJets'   : 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
                     && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 \
-                    && nCentralLJets >= 1 && nCentralBJets==0 \
-                    && (dilep_flav == 0 || dilep_flav == 1) && l_q[0]*l_q[1]<0',
-    'trigger'   : '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
-                        &&treatAsYear==2015)\
-                  ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
-                        &&treatAsYear==2016))',
+                    && nCentralLJets>=1 && nCentralBJets==0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
     'emu'       : 'dilep_flav == 0',
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
@@ -61,12 +57,10 @@ Sel = {
                     &&(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
                     &&treatAsYear==2015)\
                      ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
-                    &&treatAsYear==2016))',
-# && (nSignalJets==0 || j_pt>=40')
-}
-
+                    &&treatAsYear==2016))'
+    }
 # Open up the ROOT file
-inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/LFV_CENTRAL.root','READ')
+inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/LFV.root','READ')
 
 # Define the luminosity you want
 luminosity = "35180" # ipb 
@@ -90,77 +84,117 @@ def main():
     global inputFile
 
     # Output for yield table
-    if outputOp == 'N':   outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/YieldTable.txt','w')
-    elif outputOp == 'A': outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/YieldTable.txt','a')
+    if outputOp == 'N':   outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0231_run/YieldTable.txt','w')
+    elif outputOp == 'A': outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0231_run/YieldTable.txt','a')
 
     global luminosity
 
     # Other options
     blind_sig = True
-    output_dir = "/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/plots/"
+    output_dir = "/data/uclhc/uci/user/armstro1/analysis_n0231_run/plots/"
     plot_name_prefix = "LFV_plot_" # Prefix added to the name of all plots 
-    data_sample = 'data_CENTRAL'   # name of data sample in input file   
-    signal_sample = 'mc15_LFVsignal_CENTRAL'   #name of signal sample in input file
+    data_sample = 'data_all'   # name of data sample in input file. Should have 'data' in name.   
+    signal_sample = 'LFVsignal'   #name of signal sample in input file. Should have 'signal' in name.
 
     # Signal Branching Ratio
     BR = '0.01'
 
     # Define the lists for samples, colors, and histogram properties
     sampleList = OrderedDict([
-        ('mc15_LFVsignal_CENTRAL',0.),
-        ('mc15_higgs_CENTRAL',0.),
-        ('mc15_ZV+WW+VVV_CENTRAL',0.),
-        #('mc15_dibosons_CENTRAL',0),
-        #('mc15_tribosons_CENTRAL',0),
-        ('mc15_zjets_CENTRAL',0.),
-        ('mc15_tt+Wt_CENTRAL',0.),
-        #('mc15_ttbar_CENTRAL',0),
-        #('mc15_singletop_CENTRAL',0),
-        #('mc15_ttv_CENTRAL',0),
-        ('mc15_wjets_CENTRAL',0.),
-        ('data_CENTRAL',0.)
+        ('LFVsignal',0.),
+        ('higgs',0.),
+        ('ZV+WW+VVV',0.),
+        #('dibosons',0),
+        #('tribosons',0),
+        ('Z+jets',0.),
+        ('tt+Wt',0.),
+        #('ttbar',0),
+        #('singletop',0),
+        #('ttv',0),
+        ('W+jets',0.),
+        ('data_all',0.)
         ])
     
     colorList  = { 
-        'data_CENTRAL'           : ROOT.kBlack ,
-        'mc15_higgs_CENTRAL'     : ROOT.kYellow-9,
-        'mc15_tt+Wt_CENTRAL'     : ROOT.kRed+2 ,
-        'mc15_ZV+WW+VVV_CENTRAL' : ROOT.kAzure-7 ,
-        'mc15_ttbar_CENTRAL'     : ROOT.kRed+3,
-        'mc15_singletop_CENTRAL' : ROOT.kRed+2,
-        'mc15_ttv_CENTRAL'       : ROOT.kRed+1,
-        'mc15_dibosons_CENTRAL'  : ROOT.kAzure+3,
-        'mc15_tribosons_CENTRAL' : ROOT.kAzure+2,
-        'mc15_wjets_CENTRAL'     : ROOT.kGray,
-        'mc15_zjets_CENTRAL'     : ROOT.kOrange-2,
-        'mc15_LFVsignal_CENTRAL' : ROOT.kGreen }
+        'data_all'  : ROOT.kBlack ,
+        'higgs'     : ROOT.kYellow-9,
+        'tt+Wt'     : ROOT.kRed+2 ,
+        'ZV+WW+VVV' : ROOT.kAzure-7 ,
+        'ttbar'     : ROOT.kRed+3,
+        'singletop' : ROOT.kRed+2,
+        'ttv'       : ROOT.kRed+1,
+        'dibosons'  : ROOT.kAzure+3,
+        'tribosons' : ROOT.kAzure+2,
+        'W+jets'    : ROOT.kGray,
+        'Z+jets'    : ROOT.kOrange-2,
+        'LFVsignal' : ROOT.kGreen }
 
     legendLabel  = { 
-        'data_CENTRAL'           : 'Data 2015/2016' ,
-        'mc15_higgs_CENTRAL'     : 'Higgs',
-        'mc15_tt+Wt_CENTRAL'     : 'tt+Wt', 
-        'mc15_ZV+WW+VVV_CENTRAL' : 'ZV+WW+VVV',
-        'mc15_ttbar_CENTRAL'     : 'tt',
-        'mc15_singletop_CENTRAL' : 'Single Top',
-        'mc15_ttv_CENTRAL'       : 'ttV',
-        'mc15_dibosons_CENTRAL'  : 'VV',
-        'mc15_tribosons_CENTRAL' : 'VVV',
-        'mc15_wjets_CENTRAL'     : 'Non-prompt',
-        'mc15_zjets_CENTRAL'     : 'Z+jets',
-        'mc15_LFVsignal_CENTRAL' : 'H#rightarrow#taul (344084-91)' }
+        'data_all'  : 'Data 2015/2016' ,
+        'higgs'     : 'Higgs',
+        'tt+Wt'     : 'tt+Wt', 
+        'ZV+WW+VVV' : 'ZV+WW+VVV',
+        'ttbar'     : 'tt',
+        'singletop' : 'Single Top',
+        'ttv'       : 'ttV',
+        'dibosons'  : 'VV',
+        'tribosons' : 'VVV',
+        'W+jets'    : 'Non-prompt',
+        'Z+jets'    : 'Z+jets',
+        'LFVsignal' : 'H#rightarrow#taul (344084-91)' }
 
     histMaxBin = OrderedDict([ # default is 500
         ('nBaseJets',           40),
         ('nCentralLJets',       20),
         ('nCentralBJets',       10),
         ('nForwardJets',        15),
+        ('nCentralLJets_ge20', 20),
+        ('nCentralBJets_ge20', 10),
+        ('nForwardJets_ge20',  15),
+        ('nCentralLJets_ge30', 20),
+        ('nCentralBJets_ge30', 10),
+        ('nForwardJets_ge30',  15),
+        ('nCentralLJets_ge40', 20),
+        ('nCentralBJets_ge40', 10),
+        ('nForwardJets_ge40',  15),
+        ('nCentralLJets_ge50', 20),
+        ('nCentralBJets_ge50', 10),
+        ('nForwardJets_ge50',  15),
+        ('nCentralLJets_ge60', 20),
+        ('nCentralBJets_ge60', 10),
+        ('nForwardJets_ge60',  15),
         ('j_pt[0]',             500),
         ('j_pt[1]',             500),
         ('j_pt[2]',             500),
         ('j_pt[3]',             500),
+        ('j_pt[0]_Jge20',       500),
+        ('j_pt[1]_Jge20',       500),
+        ('j_pt[2]_Jge20',       500),
+        ('j_pt[3]_Jge20',       500),
+        ('j_pt[0]_Jge30',       500),
+        ('j_pt[1]_Jge30',       500),
+        ('j_pt[2]_Jge30',       500),
+        ('j_pt[3]_Jge30',       500),
+        ('j_pt[0]_Jge40',       500),
+        ('j_pt[1]_Jge40',       500),
+        ('j_pt[2]_Jge40',       500),
+        ('j_pt[3]_Jge40',       500),
+        ('j_pt[0]_Jge50',       500),
+        ('j_pt[1]_Jge50',       500),
+        ('j_pt[2]_Jge50',       500),
+        ('j_pt[3]_Jge50',       500),
+        ('j_pt[0]_Jge60',       500),
+        ('j_pt[1]_Jge60',       500),
+        ('j_pt[2]_Jge60',       500),
+        ('j_pt[3]_Jge60',       500),
         ('j_jvt',               1.2),
         ('j_jvf',               1.2),
         ('j_flav',              8),
+        ('j_flav_Jge20',        8),
+        ('j_flav_Jge30',        8),
+        ('j_flav_Jge40',        8),
+        ('j_flav_Jge50',        8),
+        ('j_flav_Jge60',        8),
         ('l0_pt_emu',           500),
         ('l0_pt_mue',           500),
         ('l0_pt_ee',            500),
@@ -178,6 +212,14 @@ def main():
         ('m_coll_mue_SRnoJets', 400),
         ('m_coll_emu_SRJets',   400),
         ('m_coll_mue_SRJets',   400),
+        ('SRJets_noLJetreq',    400),
+        ('SRJets_noBJetreq',    400),
+        ('SRJets_noJetreq',     400),
+        ('SRJets_noJetreqLepreq',     400),
+        ('SRnJets_noLJetreq',    400),
+        ('SRnJets_noBJetreq',    400),
+        ('SRnJets_noJetreq',     400),
+        ('SRnJets_noJetreqLepreq',     400),
         ('m_coll_emu_SymSel',   400),
         ('m_coll_mue_SymSel',   400),
         ('dphi_l0_met',         1.5*ROOT.TMath.Pi()),
@@ -204,10 +246,19 @@ def main():
     histMaxY = { #default is 300 million 
         'j_jvt'             :3*(10**12),
         'j_jvf'             :3*(10**12),
-        'm_coll_emu_SRnoJets':1000,
-        'm_coll_mue_SRnoJets':1200,
-        'm_coll_emu_SRJets':1000,
-        'm_coll_mue_SRJets':1000
+        'm_coll_emu_SRnoJets':600,
+        'm_coll_mue_SRnoJets':600,
+        'm_coll_emu_SRJets':400,
+        'm_coll_mue_SRJets':400,
+        'SRJets_noLJetreq'  :10000,
+        'SRJets_noBJetreq'  :10000,
+        'SRJets_noJetreq'   :10000,
+        'SRJets_noJetreqLepreq':     10000,
+        'SRnJets_noLJetreq'  :2500,
+        'SRnJets_noBJetreq'  :2500,
+        'SRnJets_noJetreq'   :2500,
+        'SRnJets_noJetreqLepreq':     2500,
+        'j_pt[0]'          :3*(10**8)
     } 
 
     histBinNum = { #default is 25
@@ -215,6 +266,21 @@ def main():
         'nCentralLJets'         :20,
         'nCentralBJets'         :10,
         'nForwardJets'          :15,
+        'nCentralLJets_ge20'    :20,
+        'nCentralBJets_ge20'    :10,
+        'nForwardJets_ge20'     :15,
+        'nCentralLJets_ge30'    :20,
+        'nCentralBJets_ge30'    :10,
+        'nForwardJets_ge30'     :15,
+        'nCentralLJets_ge40'    :20,
+        'nCentralBJets_ge40'    :10,
+        'nForwardJets_ge40'     :15,
+        'nCentralLJets_ge50'    :20,
+        'nCentralBJets_ge50'    :10,
+        'nForwardJets_ge50'     :15,
+        'nCentralLJets_ge60'    :20,
+        'nCentralBJets_ge60'    :10,
+        'nForwardJets_ge60'     :15,
         'j_pt[0]'               :25,
         'j_pt[1]'               :25,
         'j_pt[2]'               :25,
@@ -222,6 +288,11 @@ def main():
         'j_jvt'                 :14,
         'j_jvf'                 :14,
         'j_flav'                :8,
+        'j_flav_Jge20'          :8,
+        'j_flav_Jge30'          :8,
+        'j_flav_Jge40'          :8,
+        'j_flav_Jge50'          :8,
+        'j_flav_Jge60'          :8,
         'mll_SF'                :25,
         'mll_ee'                :25,
         'mll_mumu'              :25,
@@ -233,6 +304,14 @@ def main():
         'm_coll_mue_SRnoJets'   :40,
         'm_coll_emu_SRJets'     :40,
         'm_coll_mue_SRJets'     :40,
+        'SRJets_noLJetreq'      :40,
+        'SRJets_noBJetreq'      :40,
+        'SRJets_noJetreq'       :40,
+        'SRJets_noJetreqLepreq' :40,
+        'SRnJets_noLJetreq'      :40,
+        'SRnJets_noBJetreq'      :40,
+        'SRnJets_noJetreq'       :40,
+        'SRnJets_noJetreqLepreq' :40,
         'm_coll_emu_SymSel'     :40,
         'm_coll_mue_SymSel'     :40
     }
@@ -242,15 +321,15 @@ def main():
         ('nCentralLJets',       '1.0'),
         ('nCentralBJets',       '1.0'),
         ('nForwardJets',        '1.0'),
-        ('j_jvt','('+Sel['mue'] + '||' + Sel['emu']+')'),
-        ('j_jvf','('+Sel['mue'] + '||' + Sel['emu']+')'),
+        ('j_jvt','('+Sel['emu'] + '||' + Sel['mue']+')'),
+        ('j_jvf','('+Sel['emu'] + '||' + Sel['mue']+')'),
         ('met_None','1.0'),
         ('met_Base',Sel['BaseSel']),
         ('met_Sym',Sel['SymSel']),
         ('met_Op',Sel['OpSel']),
         ('met_SRwJ',Sel['SRwJets']),
         ('met_SRnoJ',Sel['SRnoJets']),
-        ('l0_pt_emu',Sel['emu']),
+        ('l0_pt_emu',Sel['emu']), #add selection on l1 for m_coll
         ('l0_pt_mue',Sel['mue']),
         ('l0_pt_ee',Sel['ee']),
         ('l0_pt_mumu',Sel['mumu']),
@@ -263,6 +342,14 @@ def main():
         ('m_coll_mue_SRnoJets',Sel['SRnoJets']+'&&'+Sel['mue']),
         ('m_coll_emu_SRJets',Sel['SRwJets']+'&&'+Sel['emu']),
         ('m_coll_mue_SRJets',Sel['SRwJets']+'&&'+Sel['mue']),
+        ('SRJets_noLJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRJets_noBJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && nCentralLJets>=1 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRJets_noJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRJets_noJetreqLepreq','l_pt[0] >= 35 && l_pt[1] >= 12 && l_pt[0]<100 && l_pt[1]<100 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_noLJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
+        ('SRnJets_noBJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && nCentralLJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
+        ('SRnJets_noJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
+        ('SRnJets_noJetreqLepreq','l_pt[0] >= 35 && l_pt[1] >= 12 && l_pt[0]<100 && l_pt[1]<100 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
         ('m_coll_emu_SymSel',Sel['SymSel']+'&&'+Sel['emu']),
         ('m_coll_mue_SymSel',Sel['SymSel']+'&&'+Sel['mue']),
         ('mll_ee',Sel['ee']),
@@ -272,10 +359,35 @@ def main():
         ('dphi_l0_met',Sel['SymSel']),
         ('dphi_l1_met',Sel['SymSel']),
         ('dphi_ll',Sel['SymSel']),       
-        ('j_pt[0]','j_flav>=0'),
-        ('j_pt[1]','j_flav>=0'),
-        ('j_pt[2]','j_flav>=0'),
-        ('j_pt[3]','j_flav>=0'),
+        ('j_pt[0]','1'),
+        ('j_pt[1]','1'),
+        ('j_pt[2]','1'),
+        ('j_pt[3]','1'),
+        ('j_pt[0]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
+        ('j_pt[1]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
+        ('j_pt[2]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
+        ('j_pt[3]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
+        ('j_pt[0]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
+        ('j_pt[1]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
+        ('j_pt[2]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
+        ('j_pt[3]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
+        ('j_pt[0]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
+        ('j_pt[1]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
+        ('j_pt[2]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
+        ('j_pt[3]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
+        ('j_pt[0]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
+        ('j_pt[1]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
+        ('j_pt[2]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
+        ('j_pt[3]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
+        ('j_pt[0]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
+        ('j_pt[1]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
+        ('j_pt[2]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
+        ('j_pt[3]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
+        ('j_flav_Jge20',' (nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
+        ('j_flav_Jge30',' (nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
+        ('j_flav_Jge40',' (nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
+        ('j_flav_Jge50',' (nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
+        ('j_flav_Jge60',' (nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
         ('l_pt[0]',Sel['SymSel'])])
 
     variableList = OrderedDict([#default variable name is input variable
@@ -291,10 +403,43 @@ def main():
         ('m_coll_mue_SRJets','m_coll'),
         ('m_coll_emu_SymSel','m_coll'),
         ('m_coll_mue_SymSel','m_coll'),
+        ('SRJets_noLJetreq', 'm_coll'),
+        ('SRJets_noBJetreq', 'm_coll'),
+        ('SRJets_noJetreq',  'm_coll'),
+        ('SRJets_noJetreqLepreq', 'm_coll'),
+        ('SRnJets_noLJetreq','m_coll'),
+        ('SRnJets_noBJetreq','m_coll'),
+        ('SRnJets_noJetreq', 'm_coll'),
+        ('SRnJets_noJetreqLepreq', 'm_coll'),
         ('mll_SF','mll'),
         ('mll_ee','mll'),
         ('mll_mumu','mll'),
         ('mll_DF','mll'),
+        ('j_pt[0]_Jge20','j_pt[0]'),
+        ('j_pt[1]_Jge20','j_pt[1]'),
+        ('j_pt[2]_Jge20','j_pt[2]'),
+        ('j_pt[3]_Jge20','j_pt[3]'),
+        ('j_pt[0]_Jge30','j_pt[0]'),
+        ('j_pt[1]_Jge30','j_pt[1]'),
+        ('j_pt[2]_Jge30','j_pt[2]'),
+        ('j_pt[3]_Jge30','j_pt[3]'),
+        ('j_pt[0]_Jge40','j_pt[0]'),
+        ('j_pt[1]_Jge40','j_pt[1]'),
+        ('j_pt[2]_Jge40','j_pt[2]'),
+        ('j_pt[3]_Jge40','j_pt[3]'),
+        ('j_pt[0]_Jge50','j_pt[0]'),
+        ('j_pt[1]_Jge50','j_pt[1]'),
+        ('j_pt[2]_Jge50','j_pt[2]'),
+        ('j_pt[3]_Jge50','j_pt[3]'),
+        ('j_pt[0]_Jge60','j_pt[0]'),
+        ('j_pt[1]_Jge60','j_pt[1]'),
+        ('j_pt[2]_Jge60','j_pt[2]'),
+        ('j_pt[3]_Jge60','j_pt[3]'),
+        ('j_flav_Jge20','j_flav'),
+        ('j_flav_Jge30','j_flav'),
+        ('j_flav_Jge40','j_flav'),
+        ('j_flav_Jge50','j_flav'),
+        ('j_flav_Jge60','j_flav'),
         ('l0_pt_emu','l_pt[0]'),
         ('l0_pt_mue','l_pt[0]'),
         ('l0_pt_ee','l_pt[0]'),
@@ -303,6 +448,20 @@ def main():
         ('l1_pt_mue','l_pt[1]'),
         ('l1_pt_ee','l_pt[1]'),
         ('l1_pt_mumu','l_pt[1]')]) 
+
+    # Manually set x-axis label not automatically included below
+    SelAxisLabel = {
+        'SRJets_noLJetreq'      :"no LJet Requirement",
+        'SRJets_noBJetreq'      :"no BJet Requirement",
+        'SRJets_noJetreq'       :"no Jet Requirement",
+        'SRJets_noJetreqLepreq' :"no Jet Requirement w LepReq",
+        'SRnJets_noLJetreq'      :"no LJet Requirement",
+        'SRnJets_noBJetreq'      :"no BJet Requirement",
+        'SRnJets_noJetreq'       :"no Jet Requirement",
+        'SRnJets_noJetreqLepreq' :"no Jet Requirement w LepReq",
+        'j_pt[3]_Jge60'         :'Jets>=60'
+    }
+                
 
     stack      = ROOT.THStack('mcStack','Standard Model')
 
@@ -360,6 +519,10 @@ def main():
             if SelCount==0: SelectionString += sel
             if SelCount>0 : SelectionString += ','+sel
             SelCount+=1
+        # Add any manual inputs stored in dictionary
+    if variable in list(SelAxisLabel.keys()):
+        SelectionString += SelAxisLabel[variable]
+        # Default selection name if nothing specified
     if SelectionString == '': SelectionString='all events'        
 
     # Make Plots
@@ -425,7 +588,7 @@ def main():
     sampleList[signal_sample].Draw('hist && same')
     sampleList[data_sample].Draw('p && same');
     legend.Draw()
-    if ('Jets' not in variable) or ('m_coll' not in variable): ROOT.gPad.SetLogy(True) 
+    if ('Jet' not in variable) or ('m_coll' not in variable): ROOT.gPad.SetLogy(True) 
     ROOT.gPad.RedrawAxis()
 
     # Bottom Pad

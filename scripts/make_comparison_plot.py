@@ -44,10 +44,10 @@ def main():
     # Define the sample
     # select the TTrees from the inputfile that you want to run over
     if inputType == 'data':
-        sample = ['data']
+        sample = ['data_all']
     elif inputType == 'MC':
         #sample = ['mc15_higgs','mc15_dibosons','mc15_zjets','mc15_ttbar','mc15_wjets','mc15_tribosons','mc15_singletop','mc15_ttv']
-        sample = ['mc15_higgs','mc15_ZV+WW+VVV','mc15_zjets','mc15_tt+Wt','mc15_wjets']
+        sample = ['higgs','ZV+WW+VVV','Z+jets','tt+Wt','W+jets']
     else: print 'ERROR: unrecognized input type. Choose \"data\" or \"MC\"' 
 
     # Define the variable you want to plot
@@ -127,7 +127,6 @@ def main():
         htemp = ROOT.TH1F('hist_%s'%(hist),'hist_%s'%(hist),25,histMinBin[hist],histMaxBin[hist])
         htemp.Sumw2() # So that we get the correct errors after normalization
         for sam in sample:
-            sam += '_CENTRAL'
             #print 'Running over %s sample'%sam
             samhist = ROOT.TH1F('samHist','samHist',25,histMinBin[hist],histMaxBin[hist])
             samhist.Sumw2()
@@ -187,7 +186,7 @@ def main():
     ROOT.gPad.SetLogy(True)
     ROOT.gPad.RedrawAxis()
     # Save
-    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0228_run/LFV/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
+    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0231_run/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
     canvas.Close()
 
 if __name__ == "__main__":

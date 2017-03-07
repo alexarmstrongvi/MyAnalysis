@@ -5,27 +5,24 @@ import glob
 import subprocess
 
 ana_type   = "LFV"
-susyNtType = "n0228"
+susyNtType = "n0231"
 userName = "armstro1"
 
 ana_name            = "makeMiniNtuple_%s"%(ana_type)
 tar_location        = "/data/uclhc/uci/user/%s/"%(userName)
-out_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/%s/outputs/"%(userName,susyNtType,ana_type)
-log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/%s/logs/"%(userName,susyNtType,ana_type)
+out_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/outputs/"%(userName,susyNtType)
+log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/logs/"%(userName,susyNtType)
 tarred_dir          = "analysis_%s/"%(susyNtType)
 filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_%s/"%(userName,susyNtType,ana_type)
 in_job_filelist_dir = "/analysis_%s/inputs_%s/"%(susyNtType,ana_type)
-samples             = [ "mc15_dibosons"      ,
-                        "mc15_tribosons"     ,
-                        "mc15_ttbar"         ,
-                        "mc15_singletop"     ,
-                        "mc15_ttv"           ,
-                        "mc15_wjets"         ,
-                        "mc15_zjets"         ,
-                        "mc15_higgs"         ,
-                        "mc15_LFVsignal"    ,
-                        "data_all"]#           , 
-                        #"data15"             ,
+samples             = [ "tt+Wt"     ,
+                        "ZV+WW+VVV" ,
+                        "W+jets"    ,
+                        "Z+jets"    ,
+                        "higgs"     ,
+                        "LFVsignal" ,
+                        "data_all"]#    , 
+                        #"data15"   ,
                         #"data16"]            
 
 doBrick = True
@@ -36,7 +33,7 @@ doUC    = False
 def main() :
     print "SubmitCondorSF"
 
-    submitMissing=True
+    submitMissing=False
     if submitMissing:
         missing_dsids     = []
         missing_dsid_file = open('%s/missing.txt'%(out_dir))
