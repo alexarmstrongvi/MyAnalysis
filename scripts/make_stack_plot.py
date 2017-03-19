@@ -47,17 +47,43 @@ Sel = {
                     && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 \
                     && nCentralLJets>=1 && nCentralBJets==0 \
                     && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'SRnJnoJReq'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'SRwJnoJReq': 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
     'emu'       : 'dilep_flav == 0',
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
     'mumu'      : 'dilep_flav == 3',
+    # Selections for all jets to pass some threshold energy
+    'jets_ge20' : 'nCentralLJets==nCentralLJets_ge20 && nCentralBJets==nCentralBJets_ge20 && nForwardJets==nForwardJets_ge20\
+                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge20',
+    'jets_ge30' : 'nCentralLJets==nCentralLJets_ge30 && nCentralBJets==nCentralBJets_ge30 && nForwardJets==nForwardJets_ge30\
+                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge30',
+    'jets_ge40' : 'nCentralLJets==nCentralLJets_ge40 && nCentralBJets==nCentralBJets_ge40 && nForwardJets==nForwardJets_ge40\
+                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge40',
+    'jets_ge50' : 'nCentralLJets==nCentralLJets_ge50 && nCentralBJets==nCentralBJets_ge50 && nForwardJets==nForwardJets_ge50\
+                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge50',
+    'jets_ge60' : 'nCentralLJets==nCentralLJets_ge60 && nCentralBJets==nCentralBJets_ge60 && nForwardJets==nForwardJets_ge60\
+                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge60',
+    'jets_Best' : 'nForwardJets==nForwardJets_ge40',
+    # Selections applied to all plots. Includes dilepton and single lepton triggers
+    'dilep_trig':  '1.0'
+    #'dilep_trig': '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
+    #                &&treatAsYear==2015)\
+    #                ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
+    #                &&treatAsYear==2016))',
+    'singlelep_trig': '((((pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_iloose_L1EM18VH)\
+                    ||(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
+                    &&treatAsYear==2015)\
+                    ||(((pass_HLT_e24_lhtight_ivarloose_nod0 || pass_HLT_e26_lhtight_ivarloose_nod0 || pass_HLT_e60_lhmedium_nod0)\
+                    ||(pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
+                    &&treatAsYear==2016))',
     'base'      : 'mll>=20 && l_q[0]*l_q[1]<0\
                     &&(((l_pt[0] >= 20 && l_pt[1] >= 20) && (dilep_flav<=2))\
-                    || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))\
-                    &&(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
-                    &&treatAsYear==2015)\
-                     ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
-                    &&treatAsYear==2016))'
+                    || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))'
     }
 # Open up the ROOT file
 inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/LFV.root','READ')
@@ -144,22 +170,27 @@ def main():
         'LFVsignal' : 'H#rightarrow#taul (344084-91)' }
 
     histMaxBin = OrderedDict([ # default is 500
-        ('nBaseJets',           40),
-        ('nCentralLJets',       20),
-        ('nCentralBJets',       10),
-        ('nForwardJets',        15),
+        ('nBaseJets',          40),
+        ('nCentralLJets',      20),
+        ('nCentralBJets',      10),
+        ('nForwardJets',       15),
+        ('nNonsignalJets_ge20',40),
         ('nCentralLJets_ge20', 20),
         ('nCentralBJets_ge20', 10),
         ('nForwardJets_ge20',  15),
+        ('nNonsignalJets_ge30',10),
         ('nCentralLJets_ge30', 20),
         ('nCentralBJets_ge30', 10),
         ('nForwardJets_ge30',  15),
+        ('nNonsignalJets_ge40',10),
         ('nCentralLJets_ge40', 20),
         ('nCentralBJets_ge40', 10),
         ('nForwardJets_ge40',  15),
+        ('nNonsignalJets_ge50',10),
         ('nCentralLJets_ge50', 20),
         ('nCentralBJets_ge50', 10),
         ('nForwardJets_ge50',  15),
+        ('nNonsignalJets_ge60',10),
         ('nCentralLJets_ge60', 20),
         ('nCentralBJets_ge60', 10),
         ('nForwardJets_ge60',  15),
@@ -187,6 +218,10 @@ def main():
         ('j_pt[1]_Jge60',       500),
         ('j_pt[2]_Jge60',       500),
         ('j_pt[3]_Jge60',       500),
+        ('j_pt[0]_Best',       500),
+        ('j_pt[1]_Best',       500),
+        ('j_pt[2]_Best',       500),
+        ('j_pt[3]_Best',       500),
         ('j_jvt',               1.2),
         ('j_jvf',               1.2),
         ('j_flav',              8),
@@ -212,6 +247,18 @@ def main():
         ('m_coll_mue_SRnoJets', 400),
         ('m_coll_emu_SRJets',   400),
         ('m_coll_mue_SRJets',   400),
+        ('SRJets',              400),
+        ('SRJets_CLge20',       400),
+        ('SRJets_CLge30',       400),
+        ('SRJets_CLge40',       400),
+        ('SRJets_CLge50',       400),
+        ('SRJets_CLge60',       400),
+        ('SRnJets',             400),
+        ('SRnJets_CLge20',       400),
+        ('SRnJets_CLge30',       400),
+        ('SRnJets_CLge40',       400),
+        ('SRnJets_CLge50',       400),
+        ('SRnJets_CLge60',       400),
         ('SRJets_noLJetreq',    400),
         ('SRJets_noBJetreq',    400),
         ('SRJets_noJetreq',     400),
@@ -220,6 +267,14 @@ def main():
         ('SRnJets_noBJetreq',    400),
         ('SRnJets_noJetreq',     400),
         ('SRnJets_noJetreqLepreq',     400),
+        ('SRnJets_l0Met',     400),
+        ('SRnJets_l1Met',     400),
+        ('SRnJets_l0l1',     400),
+        ('SRnJets_dPtll',     400),
+        ('SRnJets_noJetl0Met',     400),
+        ('SRnJets_noJetl1Met',     400),
+        ('SRnJets_noJetl0l1',     400),
+        ('SRnJets_noJetdPtll',     400),
         ('m_coll_emu_SymSel',   400),
         ('m_coll_mue_SymSel',   400),
         ('dphi_l0_met',         1.5*ROOT.TMath.Pi()),
@@ -250,14 +305,34 @@ def main():
         'm_coll_mue_SRnoJets':600,
         'm_coll_emu_SRJets':400,
         'm_coll_mue_SRJets':400,
-        'SRJets_noLJetreq'  :10000,
-        'SRJets_noBJetreq'  :10000,
-        'SRJets_noJetreq'   :10000,
-        'SRJets_noJetreqLepreq':     10000,
-        'SRnJets_noLJetreq'  :2500,
-        'SRnJets_noBJetreq'  :2500,
-        'SRnJets_noJetreq'   :2500,
-        'SRnJets_noJetreqLepreq':     2500,
+        'SRJets'         :1000,
+        'SRJets_CLge20'  :1000,
+        'SRJets_CLge30'  :1000,
+        'SRJets_CLge40'  :1000,
+        'SRJets_CLge50'  :1000,
+        'SRJets_CLge60'  :1000,
+        'SRnJets'         :1500,
+        'SRnJets_CLge20'  :1500,
+        'SRnJets_CLge30'  :1500,
+        'SRnJets_CLge40'  :1500,
+        'SRnJets_CLge50'  :1500,
+        'SRnJets_CLge60'  :1500,
+        'SRJets_noLJetreq'  :3000,
+        'SRJets_noBJetreq'  :3000,
+        'SRJets_noJetreq'   :3000,
+        'SRJets_noJetreqLepreq':     3000,
+        'SRnJets_noLJetreq'  :2000,
+        'SRnJets_noBJetreq'  :2000,
+        'SRnJets_noJetreq'   :2000,
+        'SRnJets_noJetreqLepreq':     2000,
+        'SRnJets_l0Met' :2000,
+        'SRnJets_l1Met' :2000,
+        'SRnJets_l0l1' :2000,
+        'SRnJets_dPtll' :2000,
+        'SRnJets_noJetl0Met' :3000,
+        'SRnJets_noJetl1Met' :3000,
+        'SRnJets_noJetl0l1' :3000,
+        'SRnJets_noJetdPtll' :3000, 
         'j_pt[0]'          :3*(10**8)
     } 
 
@@ -266,18 +341,23 @@ def main():
         'nCentralLJets'         :20,
         'nCentralBJets'         :10,
         'nForwardJets'          :15,
+        'nNonsignalJets_ge20'   :40,
         'nCentralLJets_ge20'    :20,
         'nCentralBJets_ge20'    :10,
         'nForwardJets_ge20'     :15,
+        'nNonsignalJets_ge30'   :10,
         'nCentralLJets_ge30'    :20,
         'nCentralBJets_ge30'    :10,
         'nForwardJets_ge30'     :15,
+        'nNonsignalJets_ge40'   :10,
         'nCentralLJets_ge40'    :20,
         'nCentralBJets_ge40'    :10,
         'nForwardJets_ge40'     :15,
+        'nNonsignalJets_ge50'   :10,
         'nCentralLJets_ge50'    :20,
         'nCentralBJets_ge50'    :10,
         'nForwardJets_ge50'     :15,
+        'nNonsignalJets_ge60'   :10,
         'nCentralLJets_ge60'    :20,
         'nCentralBJets_ge60'    :10,
         'nForwardJets_ge60'     :15,
@@ -305,6 +385,19 @@ def main():
         'm_coll_emu_SRJets'     :40,
         'm_coll_mue_SRJets'     :40,
         'SRJets_noLJetreq'      :40,
+        'SRJets'                :40,
+        'SRnJets'               :40,
+        'SRJets_CLge20'          :40,
+        'SRJets_CLge30'          :40,
+        'SRJets_CLge40'          :40,
+        'SRJets_CLge50'          :40,
+        'SRJets_CLge60'          :40,
+        'SRnJets_CLge20'         :40,
+        'SRnJets_CLge30'         :40,
+        'SRnJets_CLge40'         :40,
+        'SRnJets_CLge50'         :40,
+        'SRnJets_CLge60'         :40,
+        'SRJets_noLJetreq'      :40,
         'SRJets_noBJetreq'      :40,
         'SRJets_noJetreq'       :40,
         'SRJets_noJetreqLepreq' :40,
@@ -312,15 +405,19 @@ def main():
         'SRnJets_noBJetreq'      :40,
         'SRnJets_noJetreq'       :40,
         'SRnJets_noJetreqLepreq' :40,
+        'SRnJets_l0Met' :40,
+        'SRnJets_l1Met' :40,
+        'SRnJets_l0l1' :40,
+        'SRnJets_dPtll' :40,
+        'SRnJets_noJetl0Met' :40,
+        'SRnJets_noJetl1Met' :40,
+        'SRnJets_noJetl0l1' :40,
+        'SRnJets_noJetdPtll' :40, 
         'm_coll_emu_SymSel'     :40,
         'm_coll_mue_SymSel'     :40
     }
     global Sel
     selectionList = OrderedDict([ #default selection is True
-        ('nBaseJets',           '1.0'),
-        ('nCentralLJets',       '1.0'),
-        ('nCentralBJets',       '1.0'),
-        ('nForwardJets',        '1.0'),
         ('j_jvt','('+Sel['emu'] + '||' + Sel['mue']+')'),
         ('j_jvf','('+Sel['emu'] + '||' + Sel['mue']+')'),
         ('met_None','1.0'),
@@ -342,14 +439,34 @@ def main():
         ('m_coll_mue_SRnoJets',Sel['SRnoJets']+'&&'+Sel['mue']),
         ('m_coll_emu_SRJets',Sel['SRwJets']+'&&'+Sel['emu']),
         ('m_coll_mue_SRJets',Sel['SRwJets']+'&&'+Sel['mue']),
-        ('SRJets_noLJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
-        ('SRJets_noBJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && nCentralLJets>=1 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
-        ('SRJets_noJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
-        ('SRJets_noJetreqLepreq','l_pt[0] >= 35 && l_pt[1] >= 12 && l_pt[0]<100 && l_pt[1]<100 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
-        ('SRnJets_noLJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
-        ('SRnJets_noBJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && nCentralLJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
-        ('SRnJets_noJetreq','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
-        ('SRnJets_noJetreqLepreq','l_pt[0] >= 35 && l_pt[1] >= 12 && l_pt[0]<100 && l_pt[1]<100 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0',),
+        ('SRJets', Sel['SRwJets']),
+        ('SRnJets',Sel['SRnoJets']),
+        ('SRJets_CLge20', Sel['SRwJnoJReq']+'&& nCentralLJets_ge20>=1 && nCentralBJets==0'),
+        ('SRJets_CLge30', Sel['SRwJnoJReq']+'&& nCentralLJets_ge30>=1 && nCentralBJets==0'),
+        ('SRJets_CLge40', Sel['SRwJnoJReq']+'&& nCentralLJets_ge40>=1 && nCentralBJets==0'),
+        ('SRJets_CLge50', Sel['SRwJnoJReq']+'&& nCentralLJets_ge50>=1 && nCentralBJets==0'),
+        ('SRJets_CLge60', Sel['SRwJnoJReq']+'&& nCentralLJets_ge60>=1 && nCentralBJets==0'),
+        ('SRnJets_CLge20',Sel['SRnJnoJReq']+'&& nCentralLJets_ge20==0 && nCentralBJets==0'),
+        ('SRnJets_CLge30',Sel['SRnJnoJReq']+'&& nCentralLJets_ge30==0 && nCentralBJets==0'),
+        ('SRnJets_CLge40',Sel['SRnJnoJReq']+'&& nCentralLJets_ge40==0 && nCentralBJets==0'),
+        ('SRnJets_CLge50',Sel['SRnJnoJReq']+'&& nCentralLJets_ge50==0 && nCentralBJets==0'),
+        ('SRnJets_CLge60',Sel['SRnJnoJReq']+'&& nCentralLJets_ge60==0 && nCentralBJets==0'),
+        ('SRJets_noLJetreq',Sel['SRwJnoJReq']+'&&'+'nCentralBJets==0'),
+        ('SRJets_noBJetreq',Sel['SRwJnoJReq']+'&&'+'nCentralLJets>=1'),
+        ('SRJets_noJetreq',Sel['SRwJnoJReq']),
+        ('SRJets_noJetreqLepreq',Sel['SRwJnoJReq']+'&& l_pt[0]<100 && l_pt[1]<100'),
+        ('SRnJets_noLJetreq',Sel['SRnJnoJReq']+'&&'+'nCentralBJets==0'),
+        ('SRnJets_noBJetreq',Sel['SRnJnoJReq']+'&&'+'nCentralLJets==0'),
+        ('SRnJets_noJetreq',Sel['SRnJnoJReq']),
+        ('SRnJets_noJetreqLepreq',Sel['SRnJnoJReq']+' && l_pt[0]<100 && l_pt[1]<100'),
+        ('SRnJets_l0Met','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.0 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && nCentralLJets==0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_l1Met','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.5 && dphi_ll>=2.3 && dpt_ll>=7.0 && nCentralLJets==0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_l0l1','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=1.0 && dpt_ll>=7.0 && nCentralLJets==0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_dPtll','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=1.0 && nCentralLJets==0 && nCentralBJets==0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_noJetl0Met','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=1.0 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_noJetl1Met','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.5 && dphi_ll>=2.3 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_noJetl0l1','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=1.0 && dpt_ll>=7.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
+        ('SRnJets_noJetdPtll','l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=1.0 && dilep_flav <= 1 && l_q[0]*l_q[1]<0'),
         ('m_coll_emu_SymSel',Sel['SymSel']+'&&'+Sel['emu']),
         ('m_coll_mue_SymSel',Sel['SymSel']+'&&'+Sel['mue']),
         ('mll_ee',Sel['ee']),
@@ -363,31 +480,35 @@ def main():
         ('j_pt[1]','1'),
         ('j_pt[2]','1'),
         ('j_pt[3]','1'),
-        ('j_pt[0]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
-        ('j_pt[1]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
-        ('j_pt[2]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
-        ('j_pt[3]_Jge20','(nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
-        ('j_pt[0]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
-        ('j_pt[1]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
-        ('j_pt[2]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
-        ('j_pt[3]_Jge30','(nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
-        ('j_pt[0]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
-        ('j_pt[1]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
-        ('j_pt[2]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
-        ('j_pt[3]_Jge40','(nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
-        ('j_pt[0]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
-        ('j_pt[1]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
-        ('j_pt[2]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
-        ('j_pt[3]_Jge50','(nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
-        ('j_pt[0]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
-        ('j_pt[1]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
-        ('j_pt[2]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
-        ('j_pt[3]_Jge60','(nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
-        ('j_flav_Jge20',' (nCentralLJets-nCentralLJets_ge20)==0 && (nCentralBJets-nCentralBJets_ge20)==0 && (nForwardJets-nForwardJets_ge20)==0'),
-        ('j_flav_Jge30',' (nCentralLJets-nCentralLJets_ge30)==0 && (nCentralBJets-nCentralBJets_ge30)==0 && (nForwardJets-nForwardJets_ge30)==0'),
-        ('j_flav_Jge40',' (nCentralLJets-nCentralLJets_ge40)==0 && (nCentralBJets-nCentralBJets_ge40)==0 && (nForwardJets-nForwardJets_ge40)==0'),
-        ('j_flav_Jge50',' (nCentralLJets-nCentralLJets_ge50)==0 && (nCentralBJets-nCentralBJets_ge50)==0 && (nForwardJets-nForwardJets_ge50)==0'),
-        ('j_flav_Jge60',' (nCentralLJets-nCentralLJets_ge60)==0 && (nCentralBJets-nCentralBJets_ge60)==0 && (nForwardJets-nForwardJets_ge60)==0'),
+        ('j_pt[0]_Jge20',Sel['jets_ge20']),
+        ('j_pt[1]_Jge20',Sel['jets_ge20']),
+        ('j_pt[2]_Jge20',Sel['jets_ge20']),
+        ('j_pt[3]_Jge20',Sel['jets_ge20']),
+        ('j_pt[0]_Jge30',Sel['jets_ge30']),
+        ('j_pt[1]_Jge30',Sel['jets_ge30']),
+        ('j_pt[2]_Jge30',Sel['jets_ge30']),
+        ('j_pt[3]_Jge30',Sel['jets_ge30']),
+        ('j_pt[0]_Jge40',Sel['jets_ge40']),
+        ('j_pt[1]_Jge40',Sel['jets_ge40']),
+        ('j_pt[2]_Jge40',Sel['jets_ge40']),
+        ('j_pt[3]_Jge40',Sel['jets_ge40']),
+        ('j_pt[0]_Jge50',Sel['jets_ge50']),
+        ('j_pt[1]_Jge50',Sel['jets_ge50']),
+        ('j_pt[2]_Jge50',Sel['jets_ge50']),
+        ('j_pt[3]_Jge50',Sel['jets_ge50']),
+        ('j_pt[0]_Jge60',Sel['jets_ge60']),
+        ('j_pt[1]_Jge60',Sel['jets_ge60']),
+        ('j_pt[2]_Jge60',Sel['jets_ge60']),
+        ('j_pt[3]_Jge60',Sel['jets_ge60']),
+        ('j_pt[0]_Best', Sel['jets_Best']),
+        ('j_pt[1]_Best', Sel['jets_Best']),
+        ('j_pt[2]_Best', Sel['jets_Best']),
+        ('j_pt[3]_Best', Sel['jets_Best']),
+        ('j_flav_Jge20', Sel['jets_ge20']),
+        ('j_flav_Jge30', Sel['jets_ge30']),
+        ('j_flav_Jge40', Sel['jets_ge40']),
+        ('j_flav_Jge50', Sel['jets_ge50']),
+        ('j_flav_Jge60', Sel['jets_ge60']),
         ('l_pt[0]',Sel['SymSel'])])
 
     variableList = OrderedDict([#default variable name is input variable
@@ -403,6 +524,18 @@ def main():
         ('m_coll_mue_SRJets','m_coll'),
         ('m_coll_emu_SymSel','m_coll'),
         ('m_coll_mue_SymSel','m_coll'),
+        ('SRJets'    ,'m_coll'),
+        ('SRnJets'    ,'m_coll'),
+        ('SRJets_CLge20'    ,'m_coll'),
+        ('SRJets_CLge30'    ,'m_coll'),
+        ('SRJets_CLge40'    ,'m_coll'),
+        ('SRJets_CLge50'    ,'m_coll'),
+        ('SRJets_CLge60'    ,'m_coll'),
+        ('SRnJets_CLge20'   ,'m_coll'),
+        ('SRnJets_CLge30'   ,'m_coll'),
+        ('SRnJets_CLge40'   ,'m_coll'),
+        ('SRnJets_CLge50'   ,'m_coll'),
+        ('SRnJets_CLge60'   ,'m_coll'),
         ('SRJets_noLJetreq', 'm_coll'),
         ('SRJets_noBJetreq', 'm_coll'),
         ('SRJets_noJetreq',  'm_coll'),
@@ -411,6 +544,14 @@ def main():
         ('SRnJets_noBJetreq','m_coll'),
         ('SRnJets_noJetreq', 'm_coll'),
         ('SRnJets_noJetreqLepreq', 'm_coll'),
+        ('SRnJets_l0Met', 'm_coll'),
+        ('SRnJets_l1Met', 'm_coll'),
+        ('SRnJets_l0l1',  'm_coll'),
+        ('SRnJets_dPtll', 'm_coll'), 
+        ('SRnJets_noJetl0Met', 'm_coll'),
+        ('SRnJets_noJetl1Met', 'm_coll'),
+        ('SRnJets_noJetl0l1',  'm_coll'),
+        ('SRnJets_noJetdPtll', 'm_coll'),
         ('mll_SF','mll'),
         ('mll_ee','mll'),
         ('mll_mumu','mll'),
@@ -435,11 +576,15 @@ def main():
         ('j_pt[1]_Jge60','j_pt[1]'),
         ('j_pt[2]_Jge60','j_pt[2]'),
         ('j_pt[3]_Jge60','j_pt[3]'),
-        ('j_flav_Jge20','j_flav'),
-        ('j_flav_Jge30','j_flav'),
-        ('j_flav_Jge40','j_flav'),
-        ('j_flav_Jge50','j_flav'),
-        ('j_flav_Jge60','j_flav'),
+        ('j_pt[0]_Best', 'j_pt[0]'),
+        ('j_pt[1]_Best', 'j_pt[1]'),
+        ('j_pt[2]_Best', 'j_pt[2]'),
+        ('j_pt[3]_Best', 'j_pt[3]'),
+        ('j_flav_Jge20', 'j_flav'),
+        ('j_flav_Jge30', 'j_flav'),
+        ('j_flav_Jge40', 'j_flav'),
+        ('j_flav_Jge50', 'j_flav'),
+        ('j_flav_Jge60', 'j_flav'),
         ('l0_pt_emu','l_pt[0]'),
         ('l0_pt_mue','l_pt[0]'),
         ('l0_pt_ee','l_pt[0]'),
@@ -449,7 +594,7 @@ def main():
         ('l1_pt_ee','l_pt[1]'),
         ('l1_pt_mumu','l_pt[1]')]) 
 
-    # Manually set x-axis label not automatically included below
+    # Manually set entire x-axis label
     SelAxisLabel = {
         'SRJets_noLJetreq'      :"no LJet Requirement",
         'SRJets_noBJetreq'      :"no BJet Requirement",
@@ -459,10 +604,17 @@ def main():
         'SRnJets_noBJetreq'      :"no BJet Requirement",
         'SRnJets_noJetreq'       :"no Jet Requirement",
         'SRnJets_noJetreqLepreq' :"no Jet Requirement w LepReq",
+        'SRnJets_l0Met' : "#Delta#phi(l0,Met) same as SRJets",
+        'SRnJets_l1Met' : "#Delta#phi(l1,Met) same as SRJets",
+        'SRnJets_l0l1' :  "#Delta#phi(l0,l1) same as SRJets",
+        'SRnJets_dPtll' : "#Deltap#_T(l0,l1) same as SRJets",
+        'SRnJets_noJetl0Met' :"#Delta#phi(l0,Met) same as SRJets + no Jetreq",
+        'SRnJets_noJetl1Met' :"#Delta#phi(l1,Met) same as SRJets + no Jetreq",
+        'SRnJets_noJetl0l1'  :"#Delta#phi(l0,l1) same as SRJets + no Jetreq",
+        'SRnJets_noJetdPtll' :"#Deltap#_T(l0,l1) same as SRJets + no Jetreq",
         'j_pt[3]_Jge60'         :'Jets>=60'
     }
                 
-
     stack      = ROOT.THStack('mcStack','Standard Model')
 
     # Set the legend
@@ -521,7 +673,7 @@ def main():
             SelCount+=1
         # Add any manual inputs stored in dictionary
     if variable in list(SelAxisLabel.keys()):
-        SelectionString += SelAxisLabel[variable]
+        SelectionString = SelAxisLabel[variable]
         # Default selection name if nothing specified
     if SelectionString == '': SelectionString='all events'        
 
@@ -533,9 +685,9 @@ def main():
         htemp.Sumw2() # So that we get the correct errors after normalization
         if 'data' in sample:
             if blind_sig and 'm_coll' in variable: 
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
             else:
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s)'%(selectionList[variable],Sel['base']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetMarkerColor(ROOT.kBlack) 
             sampleList[sample].SetMarkerSize(1)
@@ -544,7 +696,7 @@ def main():
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
         elif 'signal' in sample:
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s)'%(luminosity,BR,selectionList[variable],Sel['base']),'goff')
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(colorList[sample]) 
@@ -552,7 +704,7 @@ def main():
             legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
             
         else: 
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[variable],Sel['base']),'goff') 
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff') 
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(ROOT.kBlack) 
@@ -588,7 +740,7 @@ def main():
     sampleList[signal_sample].Draw('hist && same')
     sampleList[data_sample].Draw('p && same');
     legend.Draw()
-    if ('Jet' not in variable) or ('m_coll' not in variable): ROOT.gPad.SetLogy(True) 
+    if ('Jet' not in variable) or ('SR' not in variable): ROOT.gPad.SetLogy(True) 
     ROOT.gPad.RedrawAxis()
 
     # Bottom Pad
@@ -599,14 +751,43 @@ def main():
     numerator   = ROOT.TH1TOTGraph(sampleList[data_sample])
     denominator = ROOT.TH1TOTGraph(totalSM)
     ratio       = ROOT.myTGraphErrorsDivide(numerator,denominator)
+    # Add Error Bars
+    inputError  = ROOT.TGraphAsymmErrors(totalSM)
+    outputError = ROOT.TGraphAsymmErrors(inputError)
+    buildRatioErrorBand(inputError,outputError)
+
     # Draw
     dummyHisto.Draw("p")
+    outputError.Draw("same && E2")
     ratio.Draw("same && p && 0 && 1")
     ROOT.gPad.SetGridy(1)
 
     # Save
     if outputOp!='': outputFile.close()
     canvas.SaveAs('%s%s%s.eps'%(output_dir,plot_name_prefix,variable)) 
+
+def buildRatioErrorBand(inputGraph, outputGraph):
+    outputGraph.SetMarkerSize(0);
+    for binN in range(outputGraph.GetN()):
+        outputGraph.GetY()[binN] = 1.
+        if inputGraph.GetY()[binN] > 0.0001:
+            outputGraph.GetEYhigh()[binN]=inputGraph.GetEYhigh()[binN]/inputGraph.GetY()[binN] 
+        else:
+            outputGraph.GetEYhigh()[binN]= 0. 
+        if inputGraph.GetY()[binN] > 0.0001:
+            outputGraph.GetEYlow()[binN]=inputGraph.GetEYlow()[binN]/inputGraph.GetY()[binN] 
+        else:
+            outputGraph.GetEYlow()[binN]= 0. 
+
+        if outputGraph.GetEYlow()[binN] > 1.:
+            outputGraph.GetEYlow()[binN] = 1. 
+        if outputGraph.GetEYhigh()[binN] > 1.:
+            outputGraph.GetEYhigh()[binN] = 1.
+        outputGraph.SetMarkerSize(0)
+        outputGraph.SetLineWidth(2)
+        outputGraph.SetFillStyle(3354)
+        outputGraph.SetFillColor(ROOT.kBlack)
+        #print 'EYlow: ' + str(outputGraph.GetEYlow()[binN]) + ', EYhigh: ' + str(outputGraph.GetEYhigh()[binN])
 
 if __name__ == "__main__":
     main()

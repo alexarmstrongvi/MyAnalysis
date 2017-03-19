@@ -360,18 +360,18 @@ int main(int argc, char* argv[])
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu26_imedium"); };
       *cutflow << SaveVar();
   }
-  //*cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
-  //    *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
-  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
-  //    *cutflow << SaveVar();
-  //}
-  //*cutflow << NewVar("HLT_e26_lhtight_nod0_ivarloose trigger bit"); {
-  //    *cutflow << HFTname("pass_HLT_e26_lhtight_nod0_ivarloose");
-  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_nod0_ivarloose"); };
-  //    *cutflow << SaveVar();
-  //}
+  *cutflow << NewVar("HLT_e24_lhtight_ivarloose_nod0 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e24_lhtight_ivarloose_nod0");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_ivarloose_nod0"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_e26_lhtight_ivarloose_nod0 trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e26_lhtight_ivarloose_nod0");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_ivarloose_nod0"); };
+      *cutflow << SaveVar();
+  }
   *cutflow << NewVar("HLT_e60_lhmedium_nod0 trigger bit"); {
       *cutflow << HFTname("pass_HLT_e60_lhmedium_nod0");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
@@ -645,6 +645,7 @@ int main(int argc, char* argv[])
 
 // Jet Variables
    JetVector baseJets, signalJets, centralLightJets, centralBJets, forwardJets;
+   int nNonsignalJets_ge20,nNonsignalJets_ge30,nNonsignalJets_ge40,nNonsignalJets_ge50,nNonsignalJets_ge60;
    int nCentralLJets_ge20,nCentralLJets_ge30,nCentralLJets_ge40,nCentralLJets_ge50,nCentralLJets_ge60;
    int nCentralBJets_ge20,nCentralBJets_ge30,nCentralBJets_ge40,nCentralBJets_ge50,nCentralBJets_ge60;
    int nForwardJets_ge20,nForwardJets_ge30,nForwardJets_ge40,nForwardJets_ge50,nForwardJets_ge60;
@@ -652,6 +653,7 @@ int main(int argc, char* argv[])
    *cutflow << [&](Superlink* sl, var_void*) {
      baseJets = *sl->baseJets;
      signalJets = *sl->jets;
+     nNonsignalJets_ge20=0; nNonsignalJets_ge30=0; nNonsignalJets_ge40=0; nNonsignalJets_ge50=0; nNonsignalJets_ge60=0;
      nCentralLJets_ge20=0; nCentralLJets_ge30=0; nCentralLJets_ge40=0; nCentralLJets_ge50=0; nCentralLJets_ge60=0;
      nCentralBJets_ge20=0; nCentralBJets_ge30=0; nCentralBJets_ge40=0; nCentralBJets_ge50=0; nCentralBJets_ge60=0;
      nForwardJets_ge20=0; nForwardJets_ge30=0; nForwardJets_ge40=0; nForwardJets_ge50=0; nForwardJets_ge60=0;
@@ -680,12 +682,44 @@ int main(int argc, char* argv[])
                 if(jet->Pt()>=50){nForwardJets_ge50+=1;}
                 if(jet->Pt()>=60){nForwardJets_ge60+=1;} 
            }
+           else{
+                if(jet->Pt()>=20){nNonsignalJets_ge20+=1;}
+                if(jet->Pt()>=30){nNonsignalJets_ge30+=1;}
+                if(jet->Pt()>=40){nNonsignalJets_ge40+=1;}
+                if(jet->Pt()>=50){nNonsignalJets_ge50+=1;}
+                if(jet->Pt()>=60){nNonsignalJets_ge60+=1;} 
+                 
+           }
      }
      std::sort(centralLightJets.begin()  , centralLightJets.end()  , comparePt);
      std::sort(centralBJets.begin()      , centralBJets.end()      , comparePt);
      std::sort(forwardJets.begin()       , forwardJets.end()       , comparePt);
    };
-
+   *cutflow << NewVar("number of non-signal jets with pT>=20"); {
+     *cutflow << HFTname("nNonsignalJets_ge20");
+     *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nNonsignalJets_ge20; };
+     *cutflow << SaveVar();
+     }
+   *cutflow << NewVar("number of non-signal jets with pT>=30"); {
+     *cutflow << HFTname("nNonsignalJets_ge30");
+     *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nNonsignalJets_ge30; };
+     *cutflow << SaveVar();
+     }
+   *cutflow << NewVar("number of non-signal jets with pT>=40"); {
+     *cutflow << HFTname("nNonsignalJets_ge40");
+     *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nNonsignalJets_ge40; };
+     *cutflow << SaveVar();
+     }
+   *cutflow << NewVar("number of non-signal jets with pT>=50"); {
+     *cutflow << HFTname("nNonsignalJets_ge50");
+     *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nNonsignalJets_ge50; };
+     *cutflow << SaveVar();
+     }
+   *cutflow << NewVar("number of non-signal jets with pT>=60"); {
+     *cutflow << HFTname("nNonsignalJets_ge60");
+     *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nNonsignalJets_ge60; };
+     *cutflow << SaveVar();
+     }
 *cutflow << NewVar("number of central light jets with pT>=20"); {
    *cutflow << HFTname("nCentralLJets_ge20");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralLJets_ge20; };
@@ -701,12 +735,12 @@ int main(int argc, char* argv[])
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralLJets_ge40; };
    *cutflow << SaveVar();
    }
- *cutflow << NewVar("number of central light jets with pT>50"); {
+ *cutflow << NewVar("number of central light jets with pT>=50"); {
    *cutflow << HFTname("nCentralLJets_ge50");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralLJets_ge50; };
    *cutflow << SaveVar();
    }
- *cutflow << NewVar("number of central light jets with pT>60"); {
+ *cutflow << NewVar("number of central light jets with pT>=60"); {
    *cutflow << HFTname("nCentralLJets_ge60");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralLJets_ge60; };
    *cutflow << SaveVar();
@@ -727,12 +761,12 @@ int main(int argc, char* argv[])
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralBJets_ge40; };
    *cutflow << SaveVar();
    }
- *cutflow << NewVar("number of central B jets with pT>50"); {
+ *cutflow << NewVar("number of central B jets with pT>=50"); {
    *cutflow << HFTname("nCentralBJets_ge50");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralBJets_ge50; };
    *cutflow << SaveVar();
    }
- *cutflow << NewVar("number of central B jets with pT>60"); {
+ *cutflow << NewVar("number of central B jets with pT>=60"); {
    *cutflow << HFTname("nCentralBJets_ge60");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nCentralBJets_ge60; };
    *cutflow << SaveVar();
@@ -753,12 +787,12 @@ int main(int argc, char* argv[])
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nForwardJets_ge40; };
    *cutflow << SaveVar();
    }
- *cutflow << NewVar("number of forward jets with pT>50"); {
+ *cutflow << NewVar("number of forward jets with pT>=50"); {
    *cutflow << HFTname("nForwardJets_ge50");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nForwardJets_ge50; };
    *cutflow << SaveVar();
    }
- *cutflow << NewVar("number of forward jets with pT>60"); {
+ *cutflow << NewVar("number of forward jets with pT>=60"); {
    *cutflow << HFTname("nForwardJets_ge60");
    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { return nForwardJets_ge60; };
    *cutflow << SaveVar();
