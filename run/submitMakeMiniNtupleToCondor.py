@@ -25,10 +25,10 @@ samples             = [ "tt+Wt"     ,
                         #"data15"   ,
                         #"data16"]            
 
-doBrick = True
+doBrick = False 
 doLocal = True 
-doSDSC  = False 
-doUC    = False 
+doSDSC  = True 
+doUC    = True 
 
 def main() :
     print "SubmitCondorSF"

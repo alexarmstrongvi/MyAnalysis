@@ -70,7 +70,7 @@ Sel = {
                      && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge60',
     'jets_Best' : 'nForwardJets==nForwardJets_ge40',
     # Selections applied to all plots. Includes dilepton and single lepton triggers
-    'dilep_trig':  '1.0'
+    'no_trig':  '1.0',
     #'dilep_trig': '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
     #                &&treatAsYear==2015)\
     #                ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
@@ -82,11 +82,12 @@ Sel = {
                     ||(pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
                     &&treatAsYear==2016))',
     'base'      : 'mll>=20 && l_q[0]*l_q[1]<0\
-                    &&(((l_pt[0] >= 20 && l_pt[1] >= 20) && (dilep_flav<=2))\
+                    &&(((l_pt[0] >= 20 && l_pt[1] >= 12) && (dilep_flav<=2))\
                     || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))'
     }
 # Open up the ROOT file
-inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/LFV.root','READ')
+#inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/LFV.root','READ')
+inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/CENTRAL_410009.root','READ')
 
 # Define the luminosity you want
 luminosity = "35180" # ipb 
@@ -301,38 +302,38 @@ def main():
     histMaxY = { #default is 300 million 
         'j_jvt'             :3*(10**12),
         'j_jvf'             :3*(10**12),
-        'm_coll_emu_SRnoJets':600,
-        'm_coll_mue_SRnoJets':600,
-        'm_coll_emu_SRJets':400,
-        'm_coll_mue_SRJets':400,
-        'SRJets'         :1000,
-        'SRJets_CLge20'  :1000,
-        'SRJets_CLge30'  :1000,
-        'SRJets_CLge40'  :1000,
-        'SRJets_CLge50'  :1000,
-        'SRJets_CLge60'  :1000,
-        'SRnJets'         :1500,
-        'SRnJets_CLge20'  :1500,
-        'SRnJets_CLge30'  :1500,
-        'SRnJets_CLge40'  :1500,
-        'SRnJets_CLge50'  :1500,
-        'SRnJets_CLge60'  :1500,
-        'SRJets_noLJetreq'  :3000,
-        'SRJets_noBJetreq'  :3000,
-        'SRJets_noJetreq'   :3000,
-        'SRJets_noJetreqLepreq':     3000,
-        'SRnJets_noLJetreq'  :2000,
-        'SRnJets_noBJetreq'  :2000,
-        'SRnJets_noJetreq'   :2000,
-        'SRnJets_noJetreqLepreq':     2000,
-        'SRnJets_l0Met' :2000,
-        'SRnJets_l1Met' :2000,
-        'SRnJets_l0l1' :2000,
-        'SRnJets_dPtll' :2000,
-        'SRnJets_noJetl0Met' :3000,
-        'SRnJets_noJetl1Met' :3000,
-        'SRnJets_noJetl0l1' :3000,
-        'SRnJets_noJetdPtll' :3000, 
+        'm_coll_emu_SRnoJets':1000,
+        'm_coll_mue_SRnoJets':1000,
+        'm_coll_emu_SRJets':600,
+        'm_coll_mue_SRJets':600,
+        'SRJets'         :1200,
+        'SRJets_CLge20'  :1200,
+        'SRJets_CLge30'  :1200,
+        'SRJets_CLge40'  :1200,
+        'SRJets_CLge50'  :1200,
+        'SRJets_CLge60'  :1200,
+        'SRnJets'         :2000,
+        'SRnJets_CLge20'  :2000,
+        'SRnJets_CLge30'  :2000,
+        'SRnJets_CLge40'  :2000,
+        'SRnJets_CLge50'  :2000,
+        'SRnJets_CLge60'  :2000,
+        'SRJets_noLJetreq'  :3500,
+        'SRJets_noBJetreq'  :3500,
+        'SRJets_noJetreq'   :3500,
+        'SRJets_noJetreqLepreq':     3500,
+        'SRnJets_noLJetreq'  :2500,
+        'SRnJets_noBJetreq'  :2500,
+        'SRnJets_noJetreq'   :2500,
+        'SRnJets_noJetreqLepreq':     2500,
+        'SRnJets_l0Met' :2500,
+        'SRnJets_l1Met' :2500,
+        'SRnJets_l0l1' :2500,
+        'SRnJets_dPtll' :2500,
+        'SRnJets_noJetl0Met' :3500,
+        'SRnJets_noJetl1Met' :3500,
+        'SRnJets_noJetl0l1' :3500,
+        'SRnJets_noJetdPtll' :3500, 
         'j_pt[0]'          :3*(10**8)
     } 
 
@@ -685,9 +686,9 @@ def main():
         htemp.Sumw2() # So that we get the correct errors after normalization
         if 'data' in sample:
             if blind_sig and 'm_coll' in variable: 
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['no_trig']),'goff')
             else:
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['no_trig']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetMarkerColor(ROOT.kBlack) 
             sampleList[sample].SetMarkerSize(1)
@@ -696,7 +697,7 @@ def main():
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
         elif 'signal' in sample:
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['no_trig']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(colorList[sample]) 
@@ -704,7 +705,7 @@ def main():
             legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
             
         else: 
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff') 
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['no_trig']),'goff') 
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(ROOT.kBlack) 
