@@ -29,9 +29,18 @@ def dummifyHistogram(histo):
     ratio_histo.GetYaxis().SetNdivisions(5);
     return ratio_histo
 
+# Open up the ROOT file
+inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/LFV.root','READ')
+
 # Global variables for use in other plotting scripts
 # Selections used in LFV INT note. Global so it can be used in other plotting scripts
+
+S2L_trigger = '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)&&treatAsYear==2015)||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)&&treatAsYear==2016))'
+S2L_ptCuts  = 'l_pt[0]>25.&&l_pt[1]>20.&&mll>40.'
+S2L_isOS    = '(l_q[0]*l_q[1])<0' 
+
 Sel = {
+    'Stop2L'    : S2L_trigger + " && " + S2L_ptCuts  + " && " + S2L_isOS,
     'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
                     && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
     'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
@@ -70,27 +79,25 @@ Sel = {
                      && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge60',
     'jets_Best' : 'nForwardJets==nForwardJets_ge40',
     # Selections applied to all plots. Includes dilepton and single lepton triggers
-    'no_trig':  '1.0',
-    #'dilep_trig': '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
-    #                &&treatAsYear==2015)\
-    #                ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
-    #                &&treatAsYear==2016))',
+    #'no_trig':  '1.0',
+    'dilep_trig': '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)\
+                    &&treatAsYear==2015)\
+                    ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
+                    &&treatAsYear==2016))',
     'singlelep_trig': '((((pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_iloose_L1EM18VH)\
                     ||(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
                     &&treatAsYear==2015)\
-                    ||(((pass_HLT_e24_lhtight_ivarloose_nod0 || pass_HLT_e26_lhtight_ivarloose_nod0 || pass_HLT_e60_lhmedium_nod0)\
+                    ||(((pass_HLT_e24_lhtight_nod0_ivarloose || pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)\
                     ||(pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
                     &&treatAsYear==2016))',
     'base'      : 'mll>=20 && l_q[0]*l_q[1]<0\
                     &&(((l_pt[0] >= 20 && l_pt[1] >= 12) && (dilep_flav<=2))\
-                    || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))'
+                    || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))',
     }
-# Open up the ROOT file
-#inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/LFV.root','READ')
-inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0231_run/CENTRAL_410009.root','READ')
 
 # Define the luminosity you want
 luminosity = "35180" # ipb 
+# luminosity = "3209" # ipb for data15 
 
 # Main function
 def main():
@@ -111,14 +118,14 @@ def main():
     global inputFile
 
     # Output for yield table
-    if outputOp == 'N':   outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0231_run/YieldTable.txt','w')
-    elif outputOp == 'A': outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0231_run/YieldTable.txt','a')
+    if outputOp == 'N':   outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0232_run/YieldTable.txt','w')
+    elif outputOp == 'A': outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0232_run/YieldTable.txt','a')
 
     global luminosity
 
     # Other options
     blind_sig = True
-    output_dir = "/data/uclhc/uci/user/armstro1/analysis_n0231_run/plots/"
+    output_dir = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/plots/"
     plot_name_prefix = "LFV_plot_" # Prefix added to the name of all plots 
     data_sample = 'data_all'   # name of data sample in input file. Should have 'data' in name.   
     signal_sample = 'LFVsignal'   #name of signal sample in input file. Should have 'signal' in name.
@@ -129,45 +136,33 @@ def main():
     # Define the lists for samples, colors, and histogram properties
     sampleList = OrderedDict([
         ('LFVsignal',0.),
-        ('higgs',0.),
-        ('ZV+WW+VVV',0.),
-        #('dibosons',0),
-        #('tribosons',0),
-        ('Z+jets',0.),
-        ('tt+Wt',0.),
-        #('ttbar',0),
-        #('singletop',0),
-        #('ttv',0),
-        ('W+jets',0.),
-        ('data_all',0.)
+        ('HWW',0.),
+        ('Wjets',0.),
+        ('Ztt_ZttEW',0.),
+        ('Diboson',0.),
+        ('Top',0.),
+        ('Zll_ZEW',0.),
+        ('data_all',0.),
         ])
-    
-    colorList  = { 
+
+    colorList  = {
         'data_all'  : ROOT.kBlack ,
-        'higgs'     : ROOT.kYellow-9,
-        'tt+Wt'     : ROOT.kRed+2 ,
-        'ZV+WW+VVV' : ROOT.kAzure-7 ,
-        'ttbar'     : ROOT.kRed+3,
-        'singletop' : ROOT.kRed+2,
-        'ttv'       : ROOT.kRed+1,
-        'dibosons'  : ROOT.kAzure+3,
-        'tribosons' : ROOT.kAzure+2,
-        'W+jets'    : ROOT.kGray,
-        'Z+jets'    : ROOT.kOrange-2,
+        'Wjets'     : ROOT.kBlue ,
+        'HWW'       : ROOT.kYellow-9,
+        'Top'       : ROOT.kRed+2 ,
+        'Diboson'   : ROOT.kAzure+3 ,
+        'Ztt_ZttEW' : ROOT.kAzure-7,
+        'Zll_ZEW'   : ROOT.kOrange-2,
         'LFVsignal' : ROOT.kGreen }
 
-    legendLabel  = { 
+    legendLabel  = {
         'data_all'  : 'Data 2015/2016' ,
-        'higgs'     : 'Higgs',
-        'tt+Wt'     : 'tt+Wt', 
-        'ZV+WW+VVV' : 'ZV+WW+VVV',
-        'ttbar'     : 'tt',
-        'singletop' : 'Single Top',
-        'ttv'       : 'ttV',
-        'dibosons'  : 'VV',
-        'tribosons' : 'VVV',
-        'W+jets'    : 'Non-prompt',
-        'Z+jets'    : 'Z+jets',
+        'Wjets'     : 'W+jets' ,
+        'HWW'       : 'HWW',         
+        'Top'       : 'Top',         
+        'Diboson'   : 'Diboson',     
+        'Ztt_ZttEW' : 'Ztt_ZttEW', 
+        'Zll_ZEW'   : 'Zll_ZEW',   
         'LFVsignal' : 'H#rightarrow#taul (344084-91)' }
 
     histMaxBin = OrderedDict([ # default is 500
@@ -477,6 +472,8 @@ def main():
         ('dphi_l0_met',Sel['SymSel']),
         ('dphi_l1_met',Sel['SymSel']),
         ('dphi_ll',Sel['SymSel']),       
+        ('l_pt_Wjets_e', 'nSignalLeptons>=1 && l_flav[0]==0 && l_pt[0]>=30'),
+        ('l_pt_Wjets_mu','nSignalLeptons>=1 && l_flav[0]==1 && l_pt[0]>=30'),
         ('j_pt[0]','1'),
         ('j_pt[1]','1'),
         ('j_pt[2]','1'),
@@ -510,7 +507,8 @@ def main():
         ('j_flav_Jge40', Sel['jets_ge40']),
         ('j_flav_Jge50', Sel['jets_ge50']),
         ('j_flav_Jge60', Sel['jets_ge60']),
-        ('l_pt[0]',Sel['SymSel'])])
+        #('l_pt[0]',Sel['SymSel'])
+        ])
 
     variableList = OrderedDict([#default variable name is input variable
         ('met_None','met'),
@@ -557,6 +555,8 @@ def main():
         ('mll_ee','mll'),
         ('mll_mumu','mll'),
         ('mll_DF','mll'),
+        ('l_pt_Wjets_e' ,'l_pt[0]'),
+        ('l_pt_Wjets_mu','l_pt[0]'),
         ('j_pt[0]_Jge20','j_pt[0]'),
         ('j_pt[1]_Jge20','j_pt[1]'),
         ('j_pt[2]_Jge20','j_pt[2]'),
@@ -639,7 +639,7 @@ def main():
         outputFile.write('Selection\t')
         for sample in sampleList: 
             if 'data' in sample: outputFile.write(sample+'\t+/-\t') 
-            else: outputFile.write(sample[5:]+'\t+/-\t')
+            else: outputFile.write(sample +'\t+/-\t')
         outputFile.write('\n')
 
     # Produce Yield Table (optional)
@@ -686,9 +686,9 @@ def main():
         htemp.Sumw2() # So that we get the correct errors after normalization
         if 'data' in sample:
             if blind_sig and 'm_coll' in variable: 
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['no_trig']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
             else:
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['no_trig']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetMarkerColor(ROOT.kBlack) 
             sampleList[sample].SetMarkerSize(1)
@@ -697,7 +697,7 @@ def main():
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
         elif 'signal' in sample:
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['no_trig']),'goff')
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(colorList[sample]) 
@@ -705,7 +705,7 @@ def main():
             legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
             
         else: 
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['no_trig']),'goff') 
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff') 
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(ROOT.kBlack) 

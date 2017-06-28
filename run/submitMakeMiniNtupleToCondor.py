@@ -5,7 +5,7 @@ import glob
 import subprocess
 
 ana_type   = "LFV"
-susyNtType = "n0231"
+susyNtType = "n0232"
 userName = "armstro1"
 
 ana_name            = "makeMiniNtuple_%s"%(ana_type)
@@ -15,25 +15,24 @@ log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/logs/"%(userName,
 tarred_dir          = "analysis_%s/"%(susyNtType)
 filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_%s/"%(userName,susyNtType,ana_type)
 in_job_filelist_dir = "/analysis_%s/inputs_%s/"%(susyNtType,ana_type)
-samples             = [ "tt+Wt"     ,
-                        "ZV+WW+VVV" ,
-                        "W+jets"    ,
-                        "Z+jets"    ,
-                        "higgs"     ,
-                        "LFVsignal" ,
-                        "data_all"]#    , 
-                        #"data15"   ,
-                        #"data16"]            
-
-doBrick = False 
-doLocal = True 
-doSDSC  = True 
-doUC    = True 
+samples             = [ "data_all",
+                        "Signal",
+                        "HWW",
+                        "Top",
+                        "Diboson",
+                        "Zll_ZEW",
+                        "Ztt_ZttEW",
+                        "Wjets"
+                        ]
+doBrick = True 
+doLocal = False 
+doSDSC  = False 
+doUC    = False 
 
 def main() :
     print "SubmitCondorSF"
 
-    submitMissing=False
+    submitMissing=True
     if submitMissing:
         missing_dsids     = []
         missing_dsid_file = open('%s/missing.txt'%(out_dir))

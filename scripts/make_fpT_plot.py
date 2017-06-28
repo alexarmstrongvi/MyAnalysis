@@ -4,6 +4,8 @@ from make_stack_plot import Sel, inputFile
 
 def main():
     # User defined variables
+    print "Input file from make_stack_plot.py: " + inputFile.GetName()
+    output_directory = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/plots/"
     sampleName      = 'data_all'
     histList        = {'l_pt_emu_dilep':0., 'l_pt_mue_dilep':0.,'l_pt_emu_singlelep':0., 'l_pt_mue_singlelep':0.}
     variableList    = {'l_pt_emu_dilep': 'l_pt[1]','l_pt_mue_dilep': 'l_pt[1]','l_pt_emu_singlelep': 'l_pt[1]','l_pt_mue_singlelep': 'l_pt[1]'} 
@@ -13,6 +15,10 @@ def main():
         'l_pt_mue_dilep': Sel['mue'] + ' && ' + Sel['SRnoJets'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig'],
         'l_pt_emu_singlelep': Sel['emu'] + ' && ' + Sel['SRnoJets'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig'],
         'l_pt_mue_singlelep': Sel['mue'] + ' && ' + Sel['SRnoJets'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig'],
+        #'l_pt_emu_dilep': Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig'],
+        #'l_pt_mue_dilep': Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig'],
+        #'l_pt_emu_singlelep': Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig'],
+        #'l_pt_mue_singlelep': Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig'],
     }
     minBin          = 0
     maxBin          = 200
@@ -36,7 +42,7 @@ def main():
     #sample = inputFile.Get(sampleName)    
     print "Starting to get Hists"
     for hist in histList:
-        print "\tGetting " + hist
+        print "\tGetting " + hist + " (Var = %s)"%variableList[hist]
         histName = 'hist_%s'%hist
         htemp = ROOT.TH1F(histName,histName,20,minBin,maxBin)
         htemp.Sumw2()
@@ -74,7 +80,7 @@ def main():
     leg.Draw()
     # ROOT.gPad.SetLogy(True)
     # Save and Exit
-    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0231_run/plots/LFV_plot_f(pT).eps') 
+    canvas.SaveAs('%sLFV_plot_f(pT).eps'%output_directory) 
 
 if __name__ == '__main__':
     main()

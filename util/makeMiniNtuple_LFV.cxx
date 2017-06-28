@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
   
   Superflow* cutflow = new Superflow(); // initialize the cutflow
   cutflow->setAnaName("SuperflowAna");                // arbitrary
-  cutflow->setAnaType(AnalysisType::Ana_2Lep);        // analysis type, passed to SusyNt
+  cutflow->setAnaType(AnalysisType::Ana_Stop2L);        // analysis type, passed to SusyNt
   cutflow->setLumi(1.0);                              // set the MC normalized to X pb-1
   cutflow->setSampleName(input_file);                 // sample name, check to make sure it's set OK
   cutflow->setRunMode(run_mode);                      // make configurable via run_mode
@@ -370,6 +370,18 @@ int main(int argc, char* argv[])
       *cutflow << HFTname("pass_HLT_e26_lhtight_ivarloose_nod0");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_ivarloose_nod0"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_e26_lhtight_nod0_ivarloose trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e26_lhtight_nod0_ivarloose");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
       *cutflow << SaveVar();
   }
   *cutflow << NewVar("HLT_e60_lhmedium_nod0 trigger bit"); {

@@ -6,10 +6,20 @@ import os
 import ROOT as r
 
 
-#output_filename = "mc15_higgs"
-output_filelist = ["data_all","tt+Wt","higgs","ZV+WW+VVV","W+jets","Z+jets","LFVsignal"]
-directory_with_inputs = "/data/uclhc/uci/user/armstro1/analysis_n0231/inputs_LFV/"
-directory_with_files = "/data/uclhc/uci/user/armstro1/analysis_n0231_run/outputs/"
+output_filelist = [ "LFVsignal",
+                    "HWW",
+                    "Top",
+                    "Diboson",
+                    "Zll_ZEW",
+                    "Ztt_ZttEW",
+                    "data_all",
+                    'data_15',
+                    "Wjets",
+                    ]
+directory_with_inputs = "/data/uclhc/uci/user/armstro1/analysis_n0232/inputs_LFV/"
+directory_with_files = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/outputs/"
+output_directory = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/combined_samples/"
+dsid_directory = "/data/uclhc/uci/user/armstro1/analysis_n0232/MyAnalysis/scripts/dsid_filelist/"
 missing_dsid = open(directory_with_files+'missing.txt','w')
 
 def get_dsids(filelist) :
@@ -48,7 +58,7 @@ def main() :
     os.makedirs(directory_with_inputs+'missingSamples')
     for filename in output_filelist:
         print "Running over " + filename
-        filelist = "./dsid_filelist/%s.txt"%filename
+        filelist = "%s%s.txt"%(dsid_directory,filename)
         dsids = get_dsids(filelist)
         print "\tFound %d dataset ids"%len(dsids)
         
@@ -63,7 +73,7 @@ def main() :
         for root_f in root_files :
             chain.Add(root_f)
         
-        output_file = r.TFile("/data/uclhc/uci/user/armstro1/analysis_n0231_run/%s.root"%filename,"RECREATE")
+        output_file = r.TFile("%s%s.root"%(output_directory,filename),"RECREATE")
         chain.SetName("%s"%filename)
         chain.Write()
         #chain.CloneTree(-1,"fast");

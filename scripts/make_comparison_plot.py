@@ -2,6 +2,9 @@ import os,sys,ROOT,math
 from collections import OrderedDict
 from optparse import OptionParser
 from make_stack_plot import Sel, setATLASStyle, inputFile, luminosity
+if inputFile.IsZombie():
+    print "Error opening input root file"
+    sys.exit()
 
 # Dummy ratio histogram
 def dummifyHistogram(histo):
@@ -46,8 +49,7 @@ def main():
     if inputType == 'data':
         sample = ['data_all']
     elif inputType == 'MC':
-        #sample = ['mc15_higgs','mc15_dibosons','mc15_zjets','mc15_ttbar','mc15_wjets','mc15_tribosons','mc15_singletop','mc15_ttv']
-        sample = ['higgs','ZV+WW+VVV','Z+jets','tt+Wt','W+jets']
+        sample = ['HWW','Top','Zll_ZEW','Ztt_ZttEW','Wjets']
     else: print 'ERROR: unrecognized input type. Choose \"data\" or \"MC\"' 
 
     # Define the variable you want to plot
@@ -87,6 +89,22 @@ def main():
             ('l1_pt_mue',Sel['OpSel']+" && "+Sel['mue']),
             ('e_pt',Sel['OpSel']+"&& l_flav==0"),
             ('mu_pt',Sel['OpSel']+"&& l_flav==1")])
+    elif selection == "fpt_dilepTrig":
+        selectionList = OrderedDict([ #default selection is True
+            ('l0_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
+            ('l0_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
+            ('l1_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
+            ('l1_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
+            ('e_pt',Sel['SRnoJets']+"&& l_flav==0" + ' && '+ Sel['base'] + ' && ' + Sel['dilep_trig']),
+            ('mu_pt',Sel['SRnoJets']+"&& l_flav==1" + ' && '+ Sel['base'] + ' && ' + Sel['dilep_trig'])])
+    elif selection == "fpt_singleLepTrig":
+        selectionList = OrderedDict([ #default selection is True
+            ('l0_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
+            ('l0_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
+            ('l1_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
+            ('l1_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
+            ('e_pt',Sel['SRnoJets']+"&& l_flav==0" + ' && '+ Sel['base'] + ' && ' + Sel['singlelep_trig']),
+            ('mu_pt',Sel['SRnoJets']+"&& l_flav==1" + ' && '+ Sel['base'] + ' && ' + Sel['singlelep_trig'])])
     else: print 'ERROR: undefined selection option. Choose \"SymSel\" or \"OpSel\"'
  
     histColor = {
@@ -122,24 +140,27 @@ def main():
         if hist not in histMinBin:
             histMinBin[hist] = 0
         if hist not in histMaxBin:
-            histMaxBin[hist] = 500.
+            histMaxBin[hist] = 200.
         
-        htemp = ROOT.TH1F('hist_%s'%(hist),'hist_%s'%(hist),25,histMinBin[hist],histMaxBin[hist])
+        htemp = ROOT.TH1F('hist_%s'%(hist),'hist_%s'%(hist),20,histMinBin[hist],histMaxBin[hist])
         htemp.Sumw2() # So that we get the correct errors after normalization
         for sam in sample:
             #print 'Running over %s sample'%sam
-            samhist = ROOT.TH1F('samHist','samHist',25,histMinBin[hist],histMaxBin[hist])
+            if not inputFile.GetListOfKeys().Contains(sam):
+                print "Input Root file has no sample " + sam
+                sys.exit()
+            samhist = ROOT.TH1F('samHist','samHist',20,histMinBin[hist],histMaxBin[hist])
             samhist.Sumw2()
             if inputType == 'data':
                 (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'(%s)'%(selectionList[hist]),'goff')
             else:
-                (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[hist],Sel['trigger']),'goff')
+                (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'%s*eventweight*(%s)'%(luminosity,selectionList[hist]),'goff')
             htemp.Add(samhist)
             samhist.Clear()
         histList[hist] = htemp.Clone()
         histList[hist].SetMarkerColor(histColor[hist])
         histList[hist].SetMinimum(yMin)
-        #histList[hist].SetMaximum(yMax) 
+        histList[hist].SetMaximum(yMax) 
         error    = ROOT.Double(0.)
         integral = histList[hist].IntegralAndError(0,-1,error)
         print "%*s = %*.2f +/- %*.2f"%(10,hist,10,integral,10,error)
@@ -186,7 +207,7 @@ def main():
     ROOT.gPad.SetLogy(True)
     ROOT.gPad.RedrawAxis()
     # Save
-    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0231_run/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
+    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0232_run/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
     canvas.Close()
 
 if __name__ == "__main__":
