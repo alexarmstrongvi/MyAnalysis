@@ -273,6 +273,11 @@ int main(int argc, char* argv[])
     }; 
     *cutflow << SaveVar(); 
   }
+  *cutflow << NewVar("sample DSID"); {
+    *cutflow << HFTname("dsid");
+    *cutflow << [](Superlink* sl, var_int*) -> int {return sl->nt->evt()->mcChannel;};
+    *cutflow << SaveVar();
+  }
 
   // Dipleton tiggers
   *cutflow << NewVar("HLT_mu18_mu8noL1 trigger bit"); {
@@ -372,18 +377,18 @@ int main(int argc, char* argv[])
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_ivarloose_nod0"); };
       *cutflow << SaveVar();
   }
-  *cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
-      *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
-      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
-      *cutflow << SaveVar();
-  }
-  *cutflow << NewVar("HLT_e26_lhtight_nod0_ivarloose trigger bit"); {
-      *cutflow << HFTname("pass_HLT_e26_lhtight_nod0_ivarloose");
-      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
-      *cutflow << SaveVar();
-  }
+  //*cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
+  //    *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
+  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
+  //    *cutflow << SaveVar();
+  //}
+  //*cutflow << NewVar("HLT_e26_lhtight_nod0_ivarloose trigger bit"); {
+  //    *cutflow << HFTname("pass_HLT_e26_lhtight_nod0_ivarloose");
+  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
+  //    *cutflow << SaveVar();
+  //}
   *cutflow << NewVar("HLT_e60_lhmedium_nod0 trigger bit"); {
       *cutflow << HFTname("pass_HLT_e60_lhmedium_nod0");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
