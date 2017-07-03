@@ -30,7 +30,8 @@ def dummifyHistogram(histo):
     return ratio_histo
 
 # Open up the ROOT file
-inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/LFV.root','READ')
+#inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/LFV.root','READ')
+inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/Stop2L.root','READ')
 
 # Global variables for use in other plotting scripts
 # Selections used in LFV INT note. Global so it can be used in other plotting scripts
@@ -686,9 +687,11 @@ def main():
         htemp.Sumw2() # So that we get the correct errors after normalization
         if 'data' in sample:
             if blind_sig and 'm_coll' in variable: 
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base']),'goff')
             else:
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s)'%(selectionList[variable],Sel['base']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetMarkerColor(ROOT.kBlack) 
             sampleList[sample].SetMarkerSize(1)
@@ -697,7 +700,8 @@ def main():
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
         elif 'signal' in sample:
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s)'%(luminosity,BR,selectionList[variable],Sel['base']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(colorList[sample]) 
@@ -705,7 +709,8 @@ def main():
             legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
             
         else: 
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff') 
+            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff') 
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[variable],Sel['base']),'goff') 
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(ROOT.kBlack) 
