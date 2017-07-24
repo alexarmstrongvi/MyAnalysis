@@ -365,18 +365,6 @@ int main(int argc, char* argv[])
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu26_imedium"); };
       *cutflow << SaveVar();
   }
-  *cutflow << NewVar("HLT_e24_lhtight_ivarloose_nod0 trigger bit"); {
-      *cutflow << HFTname("pass_HLT_e24_lhtight_ivarloose_nod0");
-      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_ivarloose_nod0"); };
-      *cutflow << SaveVar();
-  }
-  *cutflow << NewVar("HLT_e26_lhtight_ivarloose_nod0 trigger bit"); {
-      *cutflow << HFTname("pass_HLT_e26_lhtight_ivarloose_nod0");
-      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_ivarloose_nod0"); };
-      *cutflow << SaveVar();
-  }
   *cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
       *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
