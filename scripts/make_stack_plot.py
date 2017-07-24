@@ -29,9 +29,11 @@ def dummifyHistogram(histo):
     ratio_histo.GetYaxis().SetNdivisions(5);
     return ratio_histo
 
+LFV = True
+
 # Open up the ROOT file
-#inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/LFV.root','READ')
-inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/Stop2L.root','READ')
+if LFV: inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/LFV.root','READ')
+else: inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/Stop2L.root','READ')
 
 # Global variables for use in other plotting scripts
 # Selections used in LFV INT note. Global so it can be used in other plotting scripts
@@ -39,11 +41,34 @@ inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0232_run/Stop2L.
 S2L_trigger = '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)&&treatAsYear==2015)||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)&&treatAsYear==2016))'
 S2L_ptCuts  = 'l_pt[0]>25.&&l_pt[1]>20.&&mll>40.'
 S2L_isOS    = '(l_q[0]*l_q[1])<0' 
+S2L_jetVeto = 'nCentralBJets==0 && nForwardJets==0 && nCentralLJets==0'
+
 
 Sel = {
-    'Stop2L'    : S2L_trigger + " && " + S2L_ptCuts  + " && " + S2L_isOS,
-    'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+    'base'      : S2L_trigger + " && " + S2L_ptCuts  + " && " + S2L_isOS,
+    #'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+    #                && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 && l_q[0]*l_q[1]<0',
+    'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0 \
+                    && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
+    'SymSel'    : 'l_pt[0] >= 20 && l_pt[1]>=20 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
                     && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'SRnoJets'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 \
+                    && nCentralLJets==0 && nCentralBJets==0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'SRwJets'   : 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 \
+                    && nCentralLJets>=1 && nCentralBJets==0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'SRnJnoJReq'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'SRwJnoJReq': 'l_pt[0] >= 35 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
+                    && dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0 \
+                    && dilep_flav <= 1 && l_q[0]*l_q[1]<0',
+    'emu'       : 'dilep_flav == 0',
     'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 12 && fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4 \
                     && dilep_flav <= 1 && l_q[0]*l_q[1]<0 \
                     && dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
@@ -86,19 +111,32 @@ Sel = {
                     ||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)\
                     &&treatAsYear==2016))',
     'singlelep_trig': '((((pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_iloose_L1EM18VH)\
-                    ||(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
+                    ||(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu26_ivarmedium || pass_HLT_mu50))\
                     &&treatAsYear==2015)\
                     ||(((pass_HLT_e24_lhtight_nod0_ivarloose || pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)\
-                    ||(pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_imedium))\
+                    ||(pass_HLT_mu26_ivarmedium || pass_HLT_mu50))\
                     &&treatAsYear==2016))',
-    'base'      : 'mll>=20 && l_q[0]*l_q[1]<0\
+    'singlelep_trig_e24_15' : '(pass_HLT_e24_lhmedium_iloose_L1EM18VH && treatAsYear==2015)',
+    'singlelep_trig_e60_15' : '(pass_HLT_e60_lhmedium && treatAsYear==2015)',
+    'singlelep_trig_mu26_15': '(pass_HLT_mu26_ivarmedium && treatAsYear==2015)',
+    'singlelep_trig_mu50_15': '(pass_HLT_mu50 && treatAsYear==2015)',
+    'singlelep_trig_e24_16' : '(pass_HLT_e24_lhtight_nod0_ivarloose==1 && treatAsYear==2016)',
+    'singlelep_trig_e24e26_16' : '((pass_HLT_e24_lhtight_nod0_ivarloose || pass_HLT_e26_lhtight_nod0_ivarloose) && treatAsYear==2016)',
+    'singlelep_trig_e26_16' : '(pass_HLT_e26_lhtight_nod0_ivarloose==1 && treatAsYear==2016)',
+    'singlelep_trig_e60_16' : '(pass_HLT_e60_lhmedium_nod0 && treatAsYear==2016)',
+    'singlelep_trig_mu26_16': '(pass_HLT_mu26_ivarmedium && treatAsYear==2016)',
+    'singlelep_trig_mu50_16': '(pass_HLT_mu50 && treatAsYear==2016)',
+    'base_LFV'      : 'mll>=20 && l_q[0]*l_q[1]<0\
                     &&(((l_pt[0] >= 20 && l_pt[1] >= 12) && (dilep_flav<=2))\
                     || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))',
     }
+Sel["single_or_dilep_trig"] = '('+Sel['singlelep_trig']+' || '+Sel['dilep_trig']+')'
+trigger_selection = Sel['singlelep_trig_e26_16']
 
 # Define the luminosity you want
-luminosity = "35180" # ipb 
-# luminosity = "3209" # ipb for data15 
+luminosity = "36180" # ipb 
+#luminosity = "3209" # ipb for data15 
+#luminosity = "32971" # ipb for data16
 
 # Main function
 def main():
@@ -127,44 +165,83 @@ def main():
     # Other options
     blind_sig = True
     output_dir = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/plots/"
-    plot_name_prefix = "LFV_plot_" # Prefix added to the name of all plots 
-    data_sample = 'data_all'   # name of data sample in input file. Should have 'data' in name.   
-    signal_sample = 'LFVsignal'   #name of signal sample in input file. Should have 'signal' in name.
+    if LFV:
+        plot_name_prefix = "LFV_plot_" # Prefix added to the name of all plots 
+        data_sample = 'data_all'   # name of data sample in input file. Should have 'data' in name.   
+        
+    else:
+        plot_name_prefix = "Stop2L_plot_" # Prefix added to the name of all plots 
+        data_sample = 'data'   # name of data sample in input file. Should have 'data' in name.   
 
     # Signal Branching Ratio
     BR = '0.01'
 
     # Define the lists for samples, colors, and histogram properties
-    sampleList = OrderedDict([
-        ('LFVsignal',0.),
-        ('HWW',0.),
-        ('Wjets',0.),
-        ('Ztt_ZttEW',0.),
-        ('Diboson',0.),
-        ('Top',0.),
-        ('Zll_ZEW',0.),
-        ('data_all',0.),
-        ])
+    if LFV:
+        sampleList = OrderedDict([
+            ('LFVsignal',0.),
+            ('HWW',0.),
+            #('Wjets',0.),
+            ('Diboson',0.),
+            ('Top',0.),
+            ('Ztt_ZttEW',0.),
+            #('Ztt_check',0.),
+            ('Zll_ZEW',0.),
+            ('data_all',0.),
+            ])
+    
+        colorList  = {
+            'data_all'  : ROOT.kBlack ,
+            'Wjets'     : ROOT.kBlue ,
+            'HWW'       : ROOT.kYellow-9,
+            'Top'       : ROOT.kRed+2 ,
+            'Diboson'   : ROOT.kAzure+3 ,
+            'Ztt_ZttEW' : ROOT.kOrange+2,
+            'Ztt_check' : ROOT.kOrange+2,
+            'Zll_ZEW'   : ROOT.kOrange-2,
+            'LFVsignal' : ROOT.kGreen }
+    
+        legendLabel  = {
+            'data_all'  : 'Data 2015/2016' ,
+            'Wjets'     : 'W+jets' ,
+            'HWW'       : 'HWW',         
+            'Top'       : 'Top',         
+            'Diboson'   : 'Diboson',     
+            'Ztt_ZttEW' : 'Ztt_ZttEW', 
+            'Ztt_check' : 'Ztautau', 
+            'Zll_ZEW'   : 'Zll_ZEW',   
+            'LFVsignal' : 'H#rightarrow#taul (344084-91)' }
+    else:
+        sampleList = OrderedDict([
+            ('higgs',0.),
+            ('wjets_sherpa',0.),
+            ('diboson_sherpa',0.),
+            ('ttV',0.),
+            ('singletop',0.),
+            ('ttbar',0.),
+            ('zjets_and_DY',0.),
+            ('data',0.),
+            ])
 
-    colorList  = {
-        'data_all'  : ROOT.kBlack ,
-        'Wjets'     : ROOT.kBlue ,
-        'HWW'       : ROOT.kYellow-9,
-        'Top'       : ROOT.kRed+2 ,
-        'Diboson'   : ROOT.kAzure+3 ,
-        'Ztt_ZttEW' : ROOT.kAzure-7,
-        'Zll_ZEW'   : ROOT.kOrange-2,
-        'LFVsignal' : ROOT.kGreen }
+        colorList  = {
+            'data'              : ROOT.kBlack ,
+            'diboson_sherpa'    : ROOT.kAzure+3 ,
+            'higgs'             : ROOT.kYellow-9,
+            'singletop'         : ROOT.kRed+3 ,
+            'ttbar'             : ROOT.kRed+2 ,
+            'ttV'               : ROOT.kRed+4 ,
+            'wjets_sherpa'      : ROOT.kBlue ,
+            'zjets_and_DY'      : ROOT.kOrange-2}
 
-    legendLabel  = {
-        'data_all'  : 'Data 2015/2016' ,
-        'Wjets'     : 'W+jets' ,
-        'HWW'       : 'HWW',         
-        'Top'       : 'Top',         
-        'Diboson'   : 'Diboson',     
-        'Ztt_ZttEW' : 'Ztt_ZttEW', 
-        'Zll_ZEW'   : 'Zll_ZEW',   
-        'LFVsignal' : 'H#rightarrow#taul (344084-91)' }
+        legendLabel  = {
+            'data'              : 'Data 2015/2016' ,
+            'diboson_sherpa'    : 'Diboson',
+            'higgs'             : 'Higgs',
+            'singletop'         : 'Single Top',
+            'ttbar'             : 'ttbar',
+            'ttV'               : 'ttV',
+            'wjets_sherpa'      : 'W+Jets',
+            'zjets_and_DY'      : 'Z+Jets'}
 
     histMaxBin = OrderedDict([ # default is 500
         ('nBaseJets',          40),
@@ -431,7 +508,7 @@ def main():
         ('l1_pt_mue',Sel['mue']),
         ('l1_pt_ee',Sel['ee']),
         ('l1_pt_mumu',Sel['mumu']),
-        ('m_coll',Sel['SymSel']),
+        #('m_coll',Sel['SymSel']),
         ('m_coll_emu_SRnoJets',Sel['SRnoJets']+'&&'+Sel['emu']),
         ('m_coll_mue_SRnoJets',Sel['SRnoJets']+'&&'+Sel['mue']),
         ('m_coll_emu_SRJets',Sel['SRwJets']+'&&'+Sel['emu']),
@@ -680,6 +757,7 @@ def main():
     if SelectionString == '': SelectionString='all events'        
 
     # Make Plots
+    print "Selections: %s*eventweight*(%s && %s && %s)"%(luminosity,selectionList[variable],Sel['BaseSel'],trigger_selection) 
     totalSM = ROOT.TH1D('totalSM','totalSM',histBinNum[variable],histMinBin[variable],histMaxBin[variable]) 
     totalSM.Sumw2()
     for sample in sampleList:
@@ -687,11 +765,11 @@ def main():
         htemp.Sumw2() # So that we get the correct errors after normalization
         if 'data' in sample:
             if blind_sig and 'm_coll' in variable: 
-                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['BaseSel'],trigger_selection),'goff')
+                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base']),'goff')
             else:
-                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s)'%(selectionList[variable],Sel['base']),'goff')
+                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['BaseSel'],trigger_selection),'goff')
+                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s)'%(selectionList[variable],Sel['base']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetMarkerColor(ROOT.kBlack) 
             sampleList[sample].SetMarkerSize(1)
@@ -700,8 +778,8 @@ def main():
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
         elif 'signal' in sample:
-            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff')
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s)'%(luminosity,BR,selectionList[variable],Sel['base']),'goff')
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['BaseSel'],trigger_selection),'goff')
+            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s)'%(luminosity,BR,selectionList[variable],Sel['base']),'goff')
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(colorList[sample]) 
@@ -709,8 +787,8 @@ def main():
             legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
             
         else: 
-            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base'],Sel['dilep_trig']),'goff') 
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[variable],Sel['base']),'goff') 
+            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['BaseSel'],trigger_selection),'goff') 
+            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[variable],Sel['base']),'goff') 
             sampleList[sample] = htemp.Clone()
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(ROOT.kBlack) 
@@ -743,7 +821,6 @@ def main():
     sampleList[data_sample].GetXaxis().SetLabelOffset(10)
     sampleList[data_sample].GetYaxis().SetTitle('Events')
     stack.Draw('same && hists');
-    sampleList[signal_sample].Draw('hist && same')
     sampleList[data_sample].Draw('p && same');
     legend.Draw()
     if ('Jet' not in variable) or ('SR' not in variable): ROOT.gPad.SetLogy(True) 

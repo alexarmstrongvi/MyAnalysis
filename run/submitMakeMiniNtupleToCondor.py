@@ -5,25 +5,45 @@ import glob
 import subprocess
 
 ana_type   = "LFV"
+useLocalFiles = False
 susyNtType = "n0232"
 userName = "armstro1"
-
-ana_name            = "makeMiniNtuple_%s"%(ana_type)
+ana_name            = "makeMiniNtuple_LFV"
 tar_location        = "/data/uclhc/uci/user/%s/"%(userName)
-out_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/outputs/"%(userName,susyNtType)
-log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/logs/"%(userName,susyNtType)
+
+if ana_type == "LFV":
+    if useLocalFiles:
+        filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/LOCAL_inputs_LFV/"%(userName,susyNtType)
+        in_job_filelist_dir = "/analysis_%s/LOCAL_inputs_LFV/"%(susyNtType)
+    else:
+        filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_LFV/"%(userName,susyNtType)
+        in_job_filelist_dir = "/analysis_%s/inputs_LFV/"%(susyNtType)
+    out_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/HIGGS_outputs/"%(userName,susyNtType)
+    log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/HIGGS_logs/"%(userName,susyNtType)
+    samples             = [ "data_all",
+                            "Signal",
+                            "HWW",
+                            "Top",
+                            "Diboson",
+                            "Zll_ZEW",
+                            "Ztt_ZttEW",
+                            "Ztt_check",
+                            "Wjets"
+                            ]
+elif ana_type ==  "Stop2L":
+    out_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/outputs/"%(userName,susyNtType)
+    log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/logs/"%(userName,susyNtType)
+    filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_Stop2L/"%(userName,susyNtType)
+    in_job_filelist_dir = "/analysis_%s/inputs_Stop2L/"%(susyNtType)
+    samples             = [ "data",
+                           "diboson_sherpa",
+                           "higgs",
+                           "singletop",
+                           "ttbar",
+                           "ttV",
+                           "wjets_sherpa",
+                           "zjets_and_DY"]
 tarred_dir          = "analysis_%s/"%(susyNtType)
-filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_%s/"%(userName,susyNtType,ana_type)
-in_job_filelist_dir = "/analysis_%s/inputs_%s/"%(susyNtType,ana_type)
-samples             = [ "data_all",
-                        "Signal",
-                        "HWW",
-                        "Top",
-                        "Diboson",
-                        "Zll_ZEW",
-                        "Ztt_ZttEW",
-                        "Wjets"
-                        ]
 doBrick = True 
 doLocal = False 
 doSDSC  = False 

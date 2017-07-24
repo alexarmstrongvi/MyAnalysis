@@ -377,18 +377,18 @@ int main(int argc, char* argv[])
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_ivarloose_nod0"); };
       *cutflow << SaveVar();
   }
-  //*cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
-  //    *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
-  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
-  //    *cutflow << SaveVar();
-  //}
-  //*cutflow << NewVar("HLT_e26_lhtight_nod0_ivarloose trigger bit"); {
-  //    *cutflow << HFTname("pass_HLT_e26_lhtight_nod0_ivarloose");
-  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
-  //    *cutflow << SaveVar();
-  //}
+  *cutflow << NewVar("HLT_e24_lhtight_nod0_ivarloose trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e24_lhtight_nod0_ivarloose");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhtight_nod0_ivarloose"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_e26_lhtight_nod0_ivarloose trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e26_lhtight_nod0_ivarloose");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e26_lhtight_nod0_ivarloose"); };
+      *cutflow << SaveVar();
+  }
   *cutflow << NewVar("HLT_e60_lhmedium_nod0 trigger bit"); {
       *cutflow << HFTname("pass_HLT_e60_lhmedium_nod0");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
@@ -425,12 +425,18 @@ int main(int argc, char* argv[])
   //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu24_ivarmedium"); };
   //    *cutflow << SaveVar();
   //}
-  //*cutflow << NewVar("HLT_mu26_ivarmedium trigger bit"); {
-  //    *cutflow << HFTname("pass_HLT_mu26_ivarmedium");
-  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu26_ivarmedium"); };
-  //    *cutflow << SaveVar();
-  //}
+  *cutflow << NewVar("HLT_mu26_ivarmedium trigger bit"); {
+      *cutflow << HFTname("pass_HLT_mu26_ivarmedium");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu26_ivarmedium"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_mu50"); {
+      *cutflow << HFTname("pass_HLT_mu50");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_mu50"); };
+      *cutflow << SaveVar();
+  }
 
   // 15/16 Year ID 
   *cutflow << NewVar("treatAsYear"); { 
@@ -480,6 +486,7 @@ int main(int argc, char* argv[])
       vector<double> out;
       for(auto& lepton : signalLeptons) {
         out.push_back(lepton->Pt());
+        // out.push_back(sl->tools->triggerTool().passTrigger(lepton->trigBits, "HLT_e17_lhloose_nod0_mu14"));
       }
       return out;
     };
