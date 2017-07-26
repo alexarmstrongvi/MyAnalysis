@@ -8,10 +8,11 @@ import sys
 import os
 import global_variables as _g
 
-current_filelist_dir = _g.analysis_dir+'inputs_LFV/' 
-new_filelist_dir = _g.analysis_dir+'inputs_LFV_storagified/'
+current_filelist_dir = _g.analysis_run_dir+'datasets/SLAC_inputs_LFV/' 
+new_filelist_dir = _g.analysis_run_dir+'inputs_LFV_storagified/'
 replace_txt = "root://atlfax.slac.stanford.edu:1094/"
-new_txt = "root://fax.mwt2.org:1094/"
+new_txt = "root://atldtn1.slac.stanford.edu/"
+#new_txt = "root://fax.mwt2.org:1094/"
 
 def get_sampledirs(filedir) :
     dirs = glob.glob(filedir + "*")
@@ -45,7 +46,9 @@ def make_new_list_for_sample(sample_dir, sample_name) :
         make_new_filelist(txt_file, sample_name)
 
 def main() :
-    if not os.path.isdir(current_filelist_dir): sys.exit()
+    if not os.path.isdir(current_filelist_dir): 
+        print "Directory not found: " + current_filelist_dir
+        sys.exit()
     print "storagify"
 
     sample_dirs = get_sampledirs(current_filelist_dir)

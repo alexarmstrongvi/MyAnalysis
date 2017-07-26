@@ -33,7 +33,7 @@ doUC    = False
 def main() :
     print "SubmitCondorSF"
 
-    submitMissing=False
+    submitMissing=True
     if submitMissing:
         missing_dsids     = []
         missing_dsid_file = open('%s/missing.txt'%(out_dir))

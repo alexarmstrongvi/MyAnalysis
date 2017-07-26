@@ -6,42 +6,23 @@ import os
 import ROOT as r
 import global_variables as _g
 
-LFV = True 
-
 # output_filelist names much match the txt files in the dsid filelist director
 # and will be the names of the files output into output_directory
 
-if(!LFV):
-    output_filelist = ['data',
-                       'diboson_sherpa',  
-                       'higgs',
-                       'singletop',
-                       'ttbar',
-                       'ttV',
-                       'wjets_sherpa',
-                       'zjets_and_DY',
-                       'zjets_and_DY_short',
-                       'Ztautau'
-                        ]
-    directory_with_inputs = "/data/uclhc/uci/user/armstro1/analysis_n0232/inputs_Stop2L/"
-    directory_with_files = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/outputs/"
-    output_directory = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/combined_Stop2l_samples/"
-    dsid_directory = "/data/uclhc/uci/user/armstro1/analysis_n0232_run/dsid_filelist_Stop2L/"
-else:
-    output_filelist = [ "LFVsignal",
-                        "HWW",
-                        "Top",
-                        "Diboson",
-                        "Zll_ZEW",
-                        "Ztt_ZttEW",
-                        "data_16",
-                        'data_15',
-                        "Wjets",
-                        ]
-    directory_with_inputs = _g.analysis_dir+"inputs_LFV/"
-    directory_with_files =  _g.analysis_run_dir+"outputs/"
-    output_directory =      _g.analysis_run_dir+"samples/"
-    dsid_directory =        _g.analysis_run_dir+"dsid_filelist/"
+output_filelist = [ "Signal",
+                    "HWW",
+                    "Top",
+                    "Diboson",
+                    "Zll_ZEW",
+                    "Ztt_ZttEW",
+                    "data16",
+                    'data15',
+                    "Wjets",
+                    ]
+directory_with_inputs = _g.analysis_dir+"inputs_LFV/"
+directory_with_files =  _g.analysis_run_dir+"outputs/"
+output_directory =      _g.analysis_run_dir+"samples/"
+dsid_directory =        _g.analysis_run_dir+"dsid_filelist/"
 
 missing_dsid = open(directory_with_files+'missing.txt','w')
 
