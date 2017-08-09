@@ -37,7 +37,7 @@ def main():
     inputType = options.inputType
     selection = options.selection
     yMin = 1*(10**-1)
-    yMax = 1*(10**5)
+    yMax = 1*(10**6)
     # Run in batch mode
     ROOT.gROOT.SetBatch(True)
 
@@ -91,20 +91,20 @@ def main():
             ('mu_pt',Sel['OpSel']+"&& l_flav==1")])
     elif selection == "fpt_dilepTrig":
         selectionList = OrderedDict([ #default selection is True
-            ('l0_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
-            ('l0_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
-            ('l1_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
-            ('l1_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['dilep_trig']),
-            ('e_pt',Sel['SRnoJets']+"&& l_flav==0" + ' && '+ Sel['base'] + ' && ' + Sel['dilep_trig']),
-            ('mu_pt',Sel['SRnoJets']+"&& l_flav==1" + ' && '+ Sel['base'] + ' && ' + Sel['dilep_trig'])])
+            ('l0_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['dilep_trig']),
+            ('l0_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['dilep_trig']),
+            ('l1_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['dilep_trig']),
+            ('l1_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['dilep_trig']),
+            ('e_pt',Sel['SRnoJets']+"&& l_flav==0" + ' && '+ Sel['base_LFV'] + ' && ' + Sel['dilep_trig']),
+            ('mu_pt',Sel['SRnoJets']+"&& l_flav==1" + ' && '+ Sel['base_LFV'] + ' && ' + Sel['dilep_trig'])])
     elif selection == "fpt_singleLepTrig":
         selectionList = OrderedDict([ #default selection is True
-            ('l0_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
-            ('l0_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
-            ('l1_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
-            ('l1_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base'] + ' && ' + Sel['singlelep_trig']),
-            ('e_pt',Sel['SRnoJets']+"&& l_flav==0" + ' && '+ Sel['base'] + ' && ' + Sel['singlelep_trig']),
-            ('mu_pt',Sel['SRnoJets']+"&& l_flav==1" + ' && '+ Sel['base'] + ' && ' + Sel['singlelep_trig'])])
+            ('l0_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['singlelep_trig']),
+            ('l0_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['singlelep_trig']),
+            ('l1_pt_emu',Sel['SRnoJets']+" && "+Sel['emu'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['singlelep_trig']),
+            ('l1_pt_mue',Sel['SRnoJets']+" && "+Sel['mue'] + ' && ' + Sel['base_LFV'] + ' && ' + Sel['singlelep_trig']),
+            ('e_pt',Sel['SRnoJets']+"&& l_flav==0" + ' && '+ Sel['base_LFV'] + ' && ' + Sel['singlelep_trig']),
+            ('mu_pt',Sel['SRnoJets']+"&& l_flav==1" + ' && '+ Sel['base_LFV'] + ' && ' + Sel['singlelep_trig'])])
     else: print 'ERROR: undefined selection option. Choose \"SymSel\" or \"OpSel\"'
  
     histColor = {
@@ -140,16 +140,16 @@ def main():
         if hist not in histMinBin:
             histMinBin[hist] = 0
         if hist not in histMaxBin:
-            histMaxBin[hist] = 200.
+            histMaxBin[hist] = 500.
         
-        htemp = ROOT.TH1F('hist_%s'%(hist),'hist_%s'%(hist),20,histMinBin[hist],histMaxBin[hist])
+        htemp = ROOT.TH1F('hist_%s'%(hist),'hist_%s'%(hist),25,histMinBin[hist],histMaxBin[hist])
         htemp.Sumw2() # So that we get the correct errors after normalization
         for sam in sample:
             #print 'Running over %s sample'%sam
             if not inputFile.GetListOfKeys().Contains(sam):
                 print "Input Root file has no sample " + sam
                 sys.exit()
-            samhist = ROOT.TH1F('samHist','samHist',20,histMinBin[hist],histMaxBin[hist])
+            samhist = ROOT.TH1F('samHist','samHist',25,histMinBin[hist],histMaxBin[hist])
             samhist.Sumw2()
             if inputType == 'data':
                 (inputFile.Get(sam)).Draw('%s>>samHist'%(variableList[hist]),'(%s)'%(selectionList[hist]),'goff')
@@ -207,7 +207,7 @@ def main():
     ROOT.gPad.SetLogy(True)
     ROOT.gPad.RedrawAxis()
     # Save
-    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0232_run/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
+    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0235_run/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
     canvas.Close()
 
 if __name__ == "__main__":

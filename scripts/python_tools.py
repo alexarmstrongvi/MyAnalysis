@@ -16,16 +16,17 @@ def main():
     print list_of_files
 
 # output list of directories in directory
-def get_list_of_subdirectories(directory):
+def get_list_of_subdirectories(directory,search_string='*/'):
     if not directory.endswith('/'): directory+='/'
-    subdirectories = [(x.split('/')[-2]+'/') for x in glob.glob(directory+'*/')]
+    if not search_string.endswith('/'): search_string += '/'
+    subdirectories = [(x.split('/')[-2]+'/') for x in glob.glob(directory+search_string)]
     if len(subdirectories)==0: print "WARNING: %s has no subdirectories"%directory 
     return subdirectories
 
 # output list of files in directory
-def get_list_of_files(directory):
+def get_list_of_files(directory, search_string='*'):
     if not directory.endswith('/'): directory+='/'
-    files = [x.split('/')[-1] for x in glob.glob(directory+'*')]
+    files = [x.split('/')[-1] for x in glob.glob(directory+search_string)]
     if len(files)==0: print "WARNING: %s has no files"%directory
     return files
 

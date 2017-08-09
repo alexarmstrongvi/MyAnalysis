@@ -15,8 +15,9 @@ output_filelist = [ "Signal",
                     "Diboson",
                     "Zll_ZEW",
                     "Ztt_ZttEW",
-                    "data16",
-                    'data15',
+                    #"data16",
+                    #'data15',
+                    'data_all',
                     "Wjets",
                     ]
 directory_with_inputs = _g.analysis_dir+"inputs_LFV/"

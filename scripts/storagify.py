@@ -10,9 +10,16 @@ import global_variables as _g
 
 current_filelist_dir = _g.analysis_run_dir+'datasets/SLAC_inputs_LFV/' 
 new_filelist_dir = _g.analysis_run_dir+'inputs_LFV_storagified/'
-replace_txt = "root://atlfax.slac.stanford.edu:1094/"
-new_txt = "root://atldtn1.slac.stanford.edu/"
-#new_txt = "root://fax.mwt2.org:1094/"
+
+LOCAL = True
+
+if LOCAL:
+    replace_txt = "root://atlfax.slac.stanford.edu:1094//atlas/rucio/group.phys-susy:"
+    new_txt = "root://${ATLAS_XROOTD_CACHE}//data/uclhc/uci/user/dantrim/susynt_productions/%s/"%_g.tag
+else:
+    replace_txt = "root://atlfax.slac.stanford.edu:1094/"
+    new_txt = "root://atldtn1.slac.stanford.edu/"
+    #new_txt = "root://fax.mwt2.org:1094/"
 
 def get_sampledirs(filedir) :
     dirs = glob.glob(filedir + "*")
@@ -33,7 +40,14 @@ def make_new_filelist(original_txt_file, sample_name) :
     for line in inlines :
         line = line.strip()
         if not line : continue
-        new_line = line.replace(replace_txt, new_txt)
+        if LOCAL:
+            if "data" in fname: txt = "data/"
+            elif "mc15" in fname: txt = "mc/"
+            else: print "Error:", fname
+            prefix = new_txt+txt+fname.replace('.txt','_nt/') 
+            new_line = line.replace(replace_txt,prefix)
+        else:
+            new_line = line.replace(replace_txt, new_txt)
         ofile.write(new_line + "\n")
     ofile.close()
 
