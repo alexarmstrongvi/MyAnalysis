@@ -43,7 +43,8 @@ def main():
         found_dsid = False
         for err_file in err_files:
             if dsid not in err_file: continue
-            found_dsid = True
+            if found_dsid: print 'Duplicate err file = ', dsid
+            else: found_dsid = True
             with open(directory_with_logs+err_file,'r') as tmp_file:
                 flag = False
                 if len(tmp_file.readlines())==0:
@@ -78,7 +79,7 @@ def main():
     percentage  = 100*len(unmatched_dsids)/float(len(dsid_list))
     percentage2 = 100*len(missed_dsids)/float(len(dsid_list))
     print "%3i/%3i (%3.1f%%)\t     Unmatched"%(len(unmatched_dsids),len(dsid_list),percentage)
-    print "%3i/%3i (%3.1f%%)\t     Missed\n"%(len(missed_dsids),len(dsid_list),percentage)
+    print "%3i/%3i (%3.1f%%)\t     Missed\n"%(len(missed_dsids),len(dsid_list),percentage2)
     print "Unmatched:", unmatched_dsids
     print "Missed:", missed_dsids
 

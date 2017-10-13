@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Run the block below to get all the regions for the yield table
-#python make_stack_plot.py -v 'met_None' -o 'N'
+#python make_stack_plot.py -v 'met_None' -o 'W'
 #python make_stack_plot.py -v 'met_Base' -o 'A'
 #python make_stack_plot.py -v 'met_Sym' -o 'A'
 #python make_stack_plot.py -v 'met_Op' -o 'A'
@@ -22,12 +22,12 @@ python make_stack_plot.py -v 'm_coll_mue_SRJets' &
 #
 python make_stack_plot.py -v 'l0_pt_emu' & 
 python make_stack_plot.py -v 'l0_pt_mue' &
-python make_stack_plot.py -v 'l0_pt_ee' &
-python make_stack_plot.py -v 'l0_pt_mumu' & 
+#python make_stack_plot.py -v 'l0_pt_ee' &
+#python make_stack_plot.py -v 'l0_pt_mumu' & 
 python make_stack_plot.py -v 'l1_pt_emu' &
 python make_stack_plot.py -v 'l1_pt_mue' &
-python make_stack_plot.py -v 'l1_pt_ee' &
-python make_stack_plot.py -v 'l1_pt_mumu' &
+#python make_stack_plot.py -v 'l1_pt_ee' &
+#python make_stack_plot.py -v 'l1_pt_mumu' &
 
 python make_comparison_plot.py -v 'l_pt' -i 'data' -s 'SymSel' &
 python make_comparison_plot.py -v 'l_pt' -i 'MC' -s 'SymSel' &
@@ -53,9 +53,11 @@ python make_stack_plot.py -v 'dpt_ll' &
 #python make_stack_plot.py -v 'm_coll' & 
 #python make_stack_plot.py -v 'mll' &
 python make_stack_plot.py -v 'mll_DF' &
-python make_stack_plot.py -v 'mll_SF' &
-python make_stack_plot.py -v 'mll_ee' &
-python make_stack_plot.py -v 'mll_mumu' &
+#python make_stack_plot.py -v 'mll_SF' &
+#python make_stack_plot.py -v 'mll_ee' &
+python make_stack_plot.py -v 'mll_mue' &
+python make_stack_plot.py -v 'mll_emu' &
+#python make_stack_plot.py -v 'mll_mumu' &
 #python make_stack_plot.py -v 'met'
 python make_stack_plot.py -v 'nBaseJets' & 
 python make_stack_plot.py -v 'nCentralLJets' &

@@ -16,8 +16,8 @@ import glob
 import sys
 import os
 
-current_filelist_dir = "/data/uclhc/uci/user/armstro1/analysis_n0232/BACKUP_inputs_LFV/"
-new_filelist_dir = "/data/uclhc/uci/user/armstro1/analysis_n0232/inputs_LFV_new/"
+current_filelist_dir = G.analysis_dir+"BACKUP_inputs_LFV/"
+new_filelist_dir = G.analysis_dir+"inputs_LFV_new/"
 new_prefix = "root://${ATLAS_XROOTD_CACHE}//data/uclhc/uci/user/dantrim/susynt_productions/n0233/"
 
 samples = ["data_all", "MC"]#, "data"]

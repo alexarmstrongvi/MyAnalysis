@@ -335,12 +335,12 @@ int main(int argc, char* argv[])
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e60_lhmedium"); };
       *cutflow << SaveVar();
   }
-  //*cutflow << NewVar("HLT_e24_lhmedium_L1EM20VH trigger bit"); {
-  //    *cutflow << HFTname("pass_HLT_e24_lhmedium_L1EM20VH");
-  //    *cutflow << [](Superlink* sl, var_bool*) -> bool { 
-  //        return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhmedium_L1EM20VH"); };
-  //    *cutflow << SaveVar();
-  //}
+  *cutflow << NewVar("HLT_e24_lhmedium_L1EM20VH trigger bit"); {
+      *cutflow << HFTname("pass_HLT_e24_lhmedium_L1EM20VH");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e24_lhmedium_L1EM20VH"); };
+      *cutflow << SaveVar();
+  }
   *cutflow << NewVar("HLT_e24_lhmedium_iloose_L1EM18VH trigger bit"); {
       *cutflow << HFTname("pass_HLT_e24_lhmedium_iloose_L1EM18VH");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
@@ -381,6 +381,18 @@ int main(int argc, char* argv[])
       *cutflow << HFTname("pass_HLT_e60_lhmedium_nod0");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e60_lhmedium_nod0"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_e120_lhloose trigger bit"); {
+      *cutflow << HFTname("pass_e120_lhloose");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e120_lhloose"); };
+      *cutflow << SaveVar();
+  }
+  *cutflow << NewVar("HLT_e140_lhloose_nod0 trigger bit"); {
+      *cutflow << HFTname("pass_e140_lhloose_nod0");
+      *cutflow << [](Superlink* sl, var_bool*) -> bool { 
+          return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e140_lhloose_nod0"); };
       *cutflow << SaveVar();
   }
   *cutflow << NewVar("HLT_mu24_iloose trigger bit"); {

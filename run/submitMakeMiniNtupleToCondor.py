@@ -5,15 +5,19 @@ import glob
 import subprocess
 
 ana_type   = "LFV"
+use_local = False
 susyNtType = "n0235"
 userName = "armstro1"
 ana_name            = "makeMiniNtuple_LFV"
-tar_location        = "/data/uclhc/uci/user/%s/"%(userName)
-
-filelist_dir        = "/data/uclhc/uci/user/%s/analysis_%s/inputs_LFV/"%(userName,susyNtType)
-in_job_filelist_dir = "/analysis_%s/inputs_LFV/"%(susyNtType)
-out_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/outputs/"%(userName,susyNtType)
-log_dir             = "/data/uclhc/uci/user/%s/analysis_%s_run/logs/"%(userName,susyNtType)
+tar_location        = "/data/uclhc/uci/user/%s/SusyNt/"%(userName)
+if use_local:
+    filelist_dir        = "/data/uclhc/uci/user/%s/SusyNt/analysis_%s/LOCAL_inputs_LFV/"%(userName,susyNtType)
+    in_job_filelist_dir = "/analysis_%s/LOCAL_inputs_LFV/"%(susyNtType)
+else:
+    filelist_dir        = "/data/uclhc/uci/user/%s/SusyNt/analysis_%s/inputs_LFV/"%(userName,susyNtType)
+    in_job_filelist_dir = "/analysis_%s/inputs_LFV/"%(susyNtType)
+out_dir             = "/data/uclhc/uci/user/%s/SusyNt/analysis_%s_run/outputs/"%(userName,susyNtType)
+log_dir             = "/data/uclhc/uci/user/%s/SusyNt/analysis_%s_run/logs/"%(userName,susyNtType)
 samples             = [ "data15",
                         "data16",
                         "Signal",
@@ -26,7 +30,7 @@ samples             = [ "data15",
                         ]
 tarred_dir          = "analysis_%s/"%(susyNtType)
 doBrick = True 
-doLocal = True 
+doLocal = False 
 doSDSC  = False 
 doUC    = False 
 

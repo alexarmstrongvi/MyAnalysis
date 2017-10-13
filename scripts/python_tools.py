@@ -7,7 +7,7 @@ import re
 def main():
     print "Testing Tools"
     directory_with_subdir = 'LOCAL_inputs_LFV'
-    directory_with_files = '/data/uclhc/uci/user/armstro1/analysis_n0232_run/scripts'
+    directory_with_files = '/data/uclhc/uci/user/armstro1/SusyNt/analysis_n0232_run/scripts'
     list_of_subdirectories = get_list_of_subdirectories(directory_with_subdir)    
     list_of_files = get_list_of_files(directory_with_files)    
     print list_of_subdirectories

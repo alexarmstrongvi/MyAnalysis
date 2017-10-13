@@ -4,13 +4,14 @@ import ROOT
 import python_tools as tools
 import csv
 import sys, os
+import global_variables as G
 from make_stack_plot import Sel, e15_trig, mu15_trig, e16_trig, mu16_trig
 count = 0
 # -----------------------+
 # Parameters 
-data_files_dir = "/data/uclhc/uci/user/armstro1/analysis_n0235_run/outputs/"
-luminosity_per_run_file = "/data/uclhc/uci/user/armstro1/analysis_n0235_run/lumitable.csv"
-save_name = "/data/uclhc/uci/user/armstro1/analysis_n0235_run/plots/run_number.pdf"
+data_files_dir = G.output_dir+"outputs/"
+luminosity_per_run_file = G.analysis_run_dir+"lumitable.csv"
+save_name = G.analysis_run_dir+"plots/run_number.pdf"
 selections = ""
 run_num_col = 0
 lumi_col = 6

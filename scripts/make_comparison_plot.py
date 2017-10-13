@@ -2,6 +2,7 @@ import os,sys,ROOT,math
 from collections import OrderedDict
 from optparse import OptionParser
 from make_stack_plot import Sel, setATLASStyle, inputFile, luminosity
+import global_variables as G
 if inputFile.IsZombie():
     print "Error opening input root file"
     sys.exit()
@@ -207,7 +208,7 @@ def main():
     ROOT.gPad.SetLogy(True)
     ROOT.gPad.RedrawAxis()
     # Save
-    canvas.SaveAs('/data/uclhc/uci/user/armstro1/analysis_n0235_run/plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
+    canvas.SaveAs(G.analysis_run_dir+'plots/LFV_plot_%s_%s_%s.eps'%(variableList[plotList[0]],inputType,selection)); # can also store .pdf , .eps etc.
     canvas.Close()
 
 if __name__ == "__main__":

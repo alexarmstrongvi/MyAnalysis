@@ -1,6 +1,10 @@
 import os,sys,ROOT,math
-from collections import OrderedDict
+import time
+from collections import OrderedDict, defaultdict
 from optparse import OptionParser
+import global_variables as G
+import copy
+BinZ = ROOT.RooStats.NumberCountingUtils.BinomialExpZ
 
 # Set ATLAS style
 def setATLASStyle(path="/home/amete/ATLASStyle/current/"):
@@ -32,8 +36,11 @@ def dummifyHistogram(histo):
 LFV = True
 
 # Open up the ROOT file
-if LFV: inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0235_run/LFV.root','READ')
-else: inputFile = ROOT.TFile('/data/uclhc/uci/user/armstro1/analysis_n0235_run/Stop2L.root','READ')
+if LFV: inputFile = ROOT.TFile(G.analysis_run_dir+'LFV.root','READ')
+else: inputFile = ROOT.TFile(G.analysis_run_dir+'Stop2L.root','READ')
+
+if inputFile.IsZombie():
+    print "Problem opening file ", inputFile
 
 # Global variables for use in other plotting scripts
 # Selections used in LFV INT note. Global so it can be used in other plotting scripts
@@ -52,70 +59,90 @@ mumu15_trig = 'pass_HLT_mu18_mu8noL1'
 ee16_trig   = 'pass_HLT_2e17_lhvloose_nod0'
 emu16_trig  = 'pass_HLT_e17_lhloose_nod0_mu14'
 mumu16_trig = 'pass_HLT_mu22_mu8noL1'
-e15_trig    = '(pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_L1EM20VH ||  pass_HLT_e24_lhmedium_iloose_L1EM18VH)'
+# OLD Triggers that differ from HIGGS Run-II INT Note
+#e15_trig    = '(pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_L1EM20VH ||  pass_HLT_e24_lhmedium_iloose_L1EM18VH)'
+#mu16_trig   = '(pass_HLT_mu50 || pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_ivarmedium)' 
+#e16_trig    = '(pass_HLT_e24_lhtight_nod0_ivarloose || pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)'
+e15_trig    = '(pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_L1EM20VH)'
 mu15_trig   = '(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu26_ivarmedium || pass_HLT_mu50)'
-mu16_trig   = '(pass_HLT_mu50 || pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_ivarmedium)' 
-e16_trig    = '(pass_HLT_e24_lhtight_nod0_ivarloose || pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)'
-#mu16_trig   = '(pass_HLT_mu26_ivarmedium || pass_HLT_mu50)'
+mu16_trig   = '(pass_HLT_mu26_ivarmedium || pass_HLT_mu50)' 
+e16_trig    = '(pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)'
 
-dilep15_trig     = '(treatAsYear==2015 && (%s || %s || %s))'%(ee15_trig,emu15_trig,mumu15_trig)
-dilep16_trig     = '(treatAsYear==2016 && (%s || %s || %s))'%(ee16_trig,emu16_trig,mumu16_trig)
+#dilep15_trig_wSF     = '(treatAsYear==2015 && (%s || %s || %s))'%(ee15_trig,emu15_trig,mumu15_trig)
+#dilep16_trig_wSF     = '(treatAsYear==2016 && (%s || %s || %s))'%(ee16_trig,emu16_trig,mumu16_trig)
+dilep15_trig     = '(treatAsYear==2015 && %s)'%emu15_trig
+dilep16_trig     = '(treatAsYear==2016 && %s)'%emu16_trig
 singlelep15_trig = '(treatAsYear==2015 && (%s || %s))'%(e15_trig,mu15_trig)
 singlelep16_trig = '(treatAsYear==2016 && (%s || %s))'%(e16_trig,mu16_trig)
 
 Sel = {
     'dilep_trig': '(%s || %s)'%(dilep15_trig, dilep16_trig),
     'singlelep_trig': '(%s || %s)'%(singlelep15_trig,singlelep16_trig),
-    'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 12' 
+    'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 15' 
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS,
     'SymSel'    : 'l_pt[0] >= 20 && l_pt[1] >= 20' 
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS, 
-    'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 12' 
+    'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 15' 
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS 
                   + ' && ' + 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
-    'SRwJets'   : 'l_pt[0] >= 35 && l_pt[1] >= 12'
+    'SRwJets'   : 'l_pt[0] >= 35 && l_pt[1] >= 15'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS
                   + ' && ' + 'dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0' 
-                  + ' && ' + 'nCentralLJets>=1 && nCentralBJets==0',
-    'SRnoJets'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && ' 
+                  + ' && ' + 'nCentralLJets>=1 && nCentralBJets==0 && nSignalTaus == 0',
+    'SRnoJets'  : 'l_pt[0] >= 35 && l_pt[1] >= 15 && ' 
                   + lep_eta_cut + ' && ' + DF_OS  
                   + ' && ' + 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0' 
-                  + ' && ' + 'nCentralLJets==0 && nCentralBJets==0',
+                  + ' && ' + 'nCentralLJets==0 && nCentralBJets==0 && nSignalTaus == 0',
     'emu'       : 'dilep_flav == 0',
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
     'mumu'      : 'dilep_flav == 3',
-    'base_LFV'      : 'mll>=20 && l_q[0]*l_q[1]<0\
-                    &&(((l_pt[0] >= 20 && l_pt[1] >= 12) && (dilep_flav<=2))\
-                    || ((l_pt[0] >= 25 && l_pt[1] >= 12) && (dilep_flav==3)))',
-    # Selections for all jets to pass some threshold energy
-    'jets_ge20' : 'nCentralLJets==nCentralLJets_ge20 && nCentralBJets==nCentralBJets_ge20 && nForwardJets==nForwardJets_ge20\
-                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge20',
-    'jets_ge30' : 'nCentralLJets==nCentralLJets_ge30 && nCentralBJets==nCentralBJets_ge30 && nForwardJets==nForwardJets_ge30\
-                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge30',
-    'jets_ge40' : 'nCentralLJets==nCentralLJets_ge40 && nCentralBJets==nCentralBJets_ge40 && nForwardJets==nForwardJets_ge40\
-                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge40',
-    'jets_ge50' : 'nCentralLJets==nCentralLJets_ge50 && nCentralBJets==nCentralBJets_ge50 && nForwardJets==nForwardJets_ge50\
-                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge50',
-    'jets_ge60' : 'nCentralLJets==nCentralLJets_ge60 && nCentralBJets==nCentralBJets_ge60 && nForwardJets==nForwardJets_ge60\
-                     && nBaseJets-(nCentralBJets + nCentralLJets + nForwardJets)==nNonsignalJets_ge60',
+    'base_LFV'      : 'mll>=20 && l_q[0]*l_q[1]<0 && dilep_flav <= 1\
+                    &&(((l_pt[0] >= 28 && l_pt[1] >= 15) && (dilep_flav==0))\
+                    || ((l_pt[0] >= 28 && l_pt[1] >= 20) && (dilep_flav==1)))',
+                    #|| ((l_pt[0] >= 28 && l_pt[1] >= 20) && (dilep_flav==2))\
+                    #|| ((l_pt[0] >= 28 && l_pt[1] >= 10) && (dilep_flav==3)))',
+    # Special Cuts for Testing
+    'SRwJnoJReq'   : 'l_pt[0] >= 35 && l_pt[1] >= 12'
+                  + ' && ' + lep_eta_cut + ' && ' + DF_OS
+                  + ' && ' + 'dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0',
+    'SRnJnoJReq'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && ' 
+                  + lep_eta_cut + ' && ' + DF_OS  
+                  + ' && ' + 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
+    'base_LFV_run1'      : 'mll>=20 && l_q[0]*l_q[1]<0\
+                    &&((l_pt[0] >= 12 && l_pt[1] >= 8) && (dilep_flav<=1))',
     'jets_Best' : 'nForwardJets==nForwardJets_ge40',
     }
 Sel["single_or_dilep_trig"] = '('+Sel['singlelep_trig']+' || '+Sel['dilep_trig']+')'
-
-trigger_selection = Sel['singlelep_trig']
+trigger_sel_name = 'dilep_trig'
+trigger_selection = Sel[trigger_sel_name]
 
 # Define the luminosity you want
 luminosity = "36180" # ipb 
 #luminosity = "3209" # ipb for data15 
 #luminosity = "32971" # ipb for data16
-
 # Main function
+def write_or_append(path_name, minutes, outOp):
+    file_exists = os.path.exists(path_name)
+    if file_exists:
+        time_of_mod = os.stat(path_name).st_mtime
+        old_file_cut = minutes*60
+        old_file = time.time() - time_of_mod > old_file_cut
+
+    if not file_exists or old_file or outOp == 'W':
+        return 'w'
+    elif outOp == 'A' or outOp == '':
+        return 'a'
+    else:
+        print ("WARNING (write_or_append): "
+            + "Unknown file option")
+ 
+
 def main():
     # User Inputs
     parser = OptionParser()
     parser.add_option('-v','--var',dest='variable',help='variable to plot') 
-    parser.add_option('-o','--output',dest='outputOp',default='', help='(N or A) output to new file or add to old file')
+    parser.add_option('-o','--output',dest='outputOp',default='', help='(W or A) write new file or append to old file')
     (options, args) = parser.parse_args()
     variable = options.variable
     outputOp = options.outputOp
@@ -129,17 +156,24 @@ def main():
     global inputFile
 
     # Output for yield table
-    if outputOp == 'N':   outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0235_run/YieldTable.txt','w')
-    elif outputOp == 'A': outputFile = open('/data/uclhc/uci/user/armstro1/analysis_n0235_run/YieldTable.txt','a')
+    yield_tbl_path = G.analysis_run_dir+'YieldTable_tmp.txt'
+    sig_tbl_path = G.analysis_run_dir+'SigTable_tmp.txt'
+    old_file_age = 10  # minutes
+    w_or_a_sig = write_or_append(sig_tbl_path, old_file_age, '')
+    outputFile_sig = open(sig_tbl_path,w_or_a_sig)
+    if outputOp != '':
+        outputFile = open(yield_tbl_path,outputOp.lower())
 
     global luminosity
 
     # Other options
-    blind_sig = True
-    output_dir = "/data/uclhc/uci/user/armstro1/analysis_n0235_run/plots/"
+    blind_sig = False
+    mass_window = [100,150]
+    output_dir = G.analysis_run_dir+"plots/"
     if LFV:
         plot_name_prefix = "LFV_plot_" # Prefix added to the name of all plots 
         data_sample = 'data_all'   # name of data sample in input file. Should have 'data' in name.   
+        signal_sample = 'Signal'
         
     else:
         plot_name_prefix = "Stop2L_plot_" # Prefix added to the name of all plots 
@@ -150,19 +184,22 @@ def main():
 
     INT_plot_list = [ 
         'l_pt[0]', 'dphi_l0_met', 'dphi_l1_met', 'dphi_ll', 
-        'm_coll_emu_SRnoJet',' m_coll_mue_SRnoJet',
+        'm_coll_emu_SRnoJets',' m_coll_mue_SRnoJets',
+        'SRJets_CLge20', 'SRJets_CLge30', 'SRJets_CLge40', 
+        'SRJets_CLge50', 'SRJets_CLge60', 
         'm_coll_emu_SRJets', 'm_coll_mue_SRJets']
 
     # Define the lists for samples, colors, and histogram properties
     if LFV:
         sampleList = OrderedDict([
-            ('Signal',0.), ('HWW',0.), ('Wjets',0.), ('Diboson',0.),
+            ('HWW',0.), ('Wjets',0.), ('Diboson',0.),
             ('Top',0.), ('Ztt_ZttEW',0.), ('Zll_ZEW',0.),
-            ('data_all',0.),
+            (data_sample,0.),
+            (signal_sample,0.)
             ])
     
         colorList  = {
-            'data_all'  : ROOT.kBlack ,
+            data_sample  : ROOT.kBlack ,
             'Wjets'     : ROOT.kBlue ,
             'HWW'       : ROOT.kYellow-9,
             'Top'       : ROOT.kRed+2 ,
@@ -170,19 +207,20 @@ def main():
             'Ztt_ZttEW' : ROOT.kOrange+2,
             'Ztt_check' : ROOT.kOrange+2,
             'Zll_ZEW'   : ROOT.kOrange-2,
-            'Signal' : ROOT.kGreen }
+            signal_sample : ROOT.kGreen }
         # Redfine for INT note comparison plots
         if variable in INT_plot_list:
             sampleList = OrderedDict([
-                ('Signal',0.), ('HWW',0.), ('Wjets',0.), ('Diboson',0.),
+                ('HWW',0.), ('Wjets',0.), ('Diboson',0.),
                 ('Ztt_ZttEW',0.), ('Zll_ZEW',0.), ('Top',0.), 
-                ('data_all',0.),
+                (data_sample,0.),
+                (signal_sample,0.) 
                 ])
             colorList['Ztt_ZttEW'] = ROOT.kOrange-2
             colorList['Zll_ZEW'] = ROOT.kOrange+2
 
         legendLabel  = {
-            'data_all'  : 'Data 2015/2016' ,
+            data_sample  : 'Data 2015/2016' ,
             'Wjets'     : 'W+jets' ,
             'HWW'       : 'HWW',         
             'Top'       : 'Top',         
@@ -190,7 +228,7 @@ def main():
             'Ztt_ZttEW' : 'Ztt_ZttEW', 
             'Ztt_check' : 'Ztautau', 
             'Zll_ZEW'   : 'Zll_ZEW',   
-            'Signal' : 'H#rightarrow#taul (344084-91)' }
+            signal_sample : 'H#rightarrow#taul (344084-91)' }
     else:
         sampleList = OrderedDict([
             ('higgs',0.),
@@ -228,50 +266,10 @@ def main():
         ('nCentralLJets',      20),
         ('nCentralBJets',      10),
         ('nForwardJets',       15),
-        ('nNonsignalJets_ge20',40),
-        ('nCentralLJets_ge20', 20),
-        ('nCentralBJets_ge20', 10),
-        ('nForwardJets_ge20',  15),
-        ('nNonsignalJets_ge30',10),
-        ('nCentralLJets_ge30', 20),
-        ('nCentralBJets_ge30', 10),
-        ('nForwardJets_ge30',  15),
-        ('nNonsignalJets_ge40',10),
-        ('nCentralLJets_ge40', 20),
-        ('nCentralBJets_ge40', 10),
-        ('nForwardJets_ge40',  15),
-        ('nNonsignalJets_ge50',10),
-        ('nCentralLJets_ge50', 20),
-        ('nCentralBJets_ge50', 10),
-        ('nForwardJets_ge50',  15),
-        ('nNonsignalJets_ge60',10),
-        ('nCentralLJets_ge60', 20),
-        ('nCentralBJets_ge60', 10),
-        ('nForwardJets_ge60',  15),
         ('j_pt[0]',             500),
         ('j_pt[1]',             500),
         ('j_pt[2]',             500),
         ('j_pt[3]',             500),
-        ('j_pt[0]_Jge20',       500),
-        ('j_pt[1]_Jge20',       500),
-        ('j_pt[2]_Jge20',       500),
-        ('j_pt[3]_Jge20',       500),
-        ('j_pt[0]_Jge30',       500),
-        ('j_pt[1]_Jge30',       500),
-        ('j_pt[2]_Jge30',       500),
-        ('j_pt[3]_Jge30',       500),
-        ('j_pt[0]_Jge40',       500),
-        ('j_pt[1]_Jge40',       500),
-        ('j_pt[2]_Jge40',       500),
-        ('j_pt[3]_Jge40',       500),
-        ('j_pt[0]_Jge50',       500),
-        ('j_pt[1]_Jge50',       500),
-        ('j_pt[2]_Jge50',       500),
-        ('j_pt[3]_Jge50',       500),
-        ('j_pt[0]_Jge60',       500),
-        ('j_pt[1]_Jge60',       500),
-        ('j_pt[2]_Jge60',       500),
-        ('j_pt[3]_Jge60',       500),
         ('j_pt[0]_Best',       500),
         ('j_pt[1]_Best',       500),
         ('j_pt[2]_Best',       500),
@@ -302,17 +300,7 @@ def main():
         ('m_coll_emu_SRJets',   400),
         ('m_coll_mue_SRJets',   400),
         ('SRJets',              400),
-        ('SRJets_CLge20',       400),
-        ('SRJets_CLge30',       400),
-        ('SRJets_CLge40',       400),
-        ('SRJets_CLge50',       400),
-        ('SRJets_CLge60',       400),
         ('SRnJets',             400),
-        ('SRnJets_CLge20',       400),
-        ('SRnJets_CLge30',       400),
-        ('SRnJets_CLge40',       400),
-        ('SRnJets_CLge50',       400),
-        ('SRnJets_CLge60',       400),
         ('SRJets_noLJetreq',    400),
         ('SRJets_noBJetreq',    400),
         ('SRJets_noJetreq',     400),
@@ -340,6 +328,12 @@ def main():
         ('mll_SF',              500),
         ('met',                 500),
         ('dilep_flav',          8)]) 
+    for pT in [20,30,40,50,60]:
+        histMaxBin['SRJets_CLge%d'%pT] = 400 
+        histMaxBin['SRnJets_CLge%d'%pT] = 400 
+        for i in [0,1,2,3]:
+           histMaxBin['j_pt[%d]_Jge%d'%(i,pT)] = 500
+
 
     histMinBin = OrderedDict([ #default is zero
         ('j_jvt',       -0.2),
@@ -395,26 +389,6 @@ def main():
         'nCentralLJets'         :20,
         'nCentralBJets'         :10,
         'nForwardJets'          :15,
-        'nNonsignalJets_ge20'   :40,
-        'nCentralLJets_ge20'    :20,
-        'nCentralBJets_ge20'    :10,
-        'nForwardJets_ge20'     :15,
-        'nNonsignalJets_ge30'   :10,
-        'nCentralLJets_ge30'    :20,
-        'nCentralBJets_ge30'    :10,
-        'nForwardJets_ge30'     :15,
-        'nNonsignalJets_ge40'   :10,
-        'nCentralLJets_ge40'    :20,
-        'nCentralBJets_ge40'    :10,
-        'nForwardJets_ge40'     :15,
-        'nNonsignalJets_ge50'   :10,
-        'nCentralLJets_ge50'    :20,
-        'nCentralBJets_ge50'    :10,
-        'nForwardJets_ge50'     :15,
-        'nNonsignalJets_ge60'   :10,
-        'nCentralLJets_ge60'    :20,
-        'nCentralBJets_ge60'    :10,
-        'nForwardJets_ge60'     :15,
         'j_pt[0]'               :25,
         'j_pt[1]'               :25,
         'j_pt[2]'               :25,
@@ -441,16 +415,6 @@ def main():
         'SRJets_noLJetreq'      :40,
         'SRJets'                :40,
         'SRnJets'               :40,
-        'SRJets_CLge20'          :40,
-        'SRJets_CLge30'          :40,
-        'SRJets_CLge40'          :40,
-        'SRJets_CLge50'          :40,
-        'SRJets_CLge60'          :40,
-        'SRnJets_CLge20'         :40,
-        'SRnJets_CLge30'         :40,
-        'SRnJets_CLge40'         :40,
-        'SRnJets_CLge50'         :40,
-        'SRnJets_CLge60'         :40,
         'SRJets_noLJetreq'      :40,
         'SRJets_noBJetreq'      :40,
         'SRJets_noJetreq'       :40,
@@ -470,6 +434,12 @@ def main():
         'm_coll_emu_SymSel'     :40,
         'm_coll_mue_SymSel'     :40
     }
+    for pT in [20,30,40,50,60]:
+        histBinNum['SRJets_CLge%d'%pT] = 40 
+        histBinNum['SRnJets_CLge%d'%pT] = 40 
+        for i in [0,1,2,3]:
+           histMaxBin['j_pt[%d]_Jge%d'%(i,pT)] = 40
+
     global Sel
     selectionList = OrderedDict([ #default selection is True
         ('j_jvt','('+Sel['emu'] + '||' + Sel['mue']+')'),
@@ -499,6 +469,8 @@ def main():
         ('m_coll_mue_SymSel',Sel['SymSel']+'&&'+Sel['mue']),
         ('mll_ee',Sel['ee']),
         ('mll_mumu',Sel['mumu']),
+        ('mll_emu',Sel['emu']),
+        ('mll_mue',Sel['mue']),
         ('mll_DF','('+Sel['emu']+'||'+Sel['mue']+')'),
         ('mll_SF', '('+Sel['ee']+'||'+Sel['mumu']+')'),
         ('dphi_l0_met',Sel['SymSel']),
@@ -510,37 +482,18 @@ def main():
         ('j_pt[1]','1'),
         ('j_pt[2]','1'),
         ('j_pt[3]','1'),
-        ('j_pt[0]_Jge20',Sel['jets_ge20']),
-        ('j_pt[1]_Jge20',Sel['jets_ge20']),
-        ('j_pt[2]_Jge20',Sel['jets_ge20']),
-        ('j_pt[3]_Jge20',Sel['jets_ge20']),
-        ('j_pt[0]_Jge30',Sel['jets_ge30']),
-        ('j_pt[1]_Jge30',Sel['jets_ge30']),
-        ('j_pt[2]_Jge30',Sel['jets_ge30']),
-        ('j_pt[3]_Jge30',Sel['jets_ge30']),
-        ('j_pt[0]_Jge40',Sel['jets_ge40']),
-        ('j_pt[1]_Jge40',Sel['jets_ge40']),
-        ('j_pt[2]_Jge40',Sel['jets_ge40']),
-        ('j_pt[3]_Jge40',Sel['jets_ge40']),
-        ('j_pt[0]_Jge50',Sel['jets_ge50']),
-        ('j_pt[1]_Jge50',Sel['jets_ge50']),
-        ('j_pt[2]_Jge50',Sel['jets_ge50']),
-        ('j_pt[3]_Jge50',Sel['jets_ge50']),
-        ('j_pt[0]_Jge60',Sel['jets_ge60']),
-        ('j_pt[1]_Jge60',Sel['jets_ge60']),
-        ('j_pt[2]_Jge60',Sel['jets_ge60']),
-        ('j_pt[3]_Jge60',Sel['jets_ge60']),
         ('j_pt[0]_Best', Sel['jets_Best']),
         ('j_pt[1]_Best', Sel['jets_Best']),
         ('j_pt[2]_Best', Sel['jets_Best']),
         ('j_pt[3]_Best', Sel['jets_Best']),
-        ('j_flav_Jge20', Sel['jets_ge20']),
-        ('j_flav_Jge30', Sel['jets_ge30']),
-        ('j_flav_Jge40', Sel['jets_ge40']),
-        ('j_flav_Jge50', Sel['jets_ge50']),
-        ('j_flav_Jge60', Sel['jets_ge60']),
         ('l_pt[0]',Sel['SymSel'])
         ])
+    for pT in [20,30,40,50,60]:
+        selectionList['SRJets_CLge%d'%pT] = Sel['SRwJnoJReq'] \
+        + '&& nCentralLJets_ge%d>=1 && nCentralBJets==0'%pT
+        selectionList['SRnJets_CLge%d'%pT] = Sel['SRnJnoJReq'] \
+        + '&& nCentralLJets_ge%d==0 && nCentralBJets==0'%pT
+
 
     variableList = OrderedDict([#default variable name is input variable
         ('met_None','met'),
@@ -586,6 +539,8 @@ def main():
         ('mll_SF','mll'),
         ('mll_ee','mll'),
         ('mll_mumu','mll'),
+        ('mll_emu','mll'),
+        ('mll_mue','mll'),
         ('mll_DF','mll'),
         ('l_pt_Wjets_e' ,'l_pt[0]'),
         ('l_pt_Wjets_mu','l_pt[0]'),
@@ -667,14 +622,14 @@ def main():
     if variable not in histBinNum:    histBinNum[variable] = 25
 
     # Setup output Yield Table
-    if outputOp=='N':
+    if outputOp=='W':
         outputFile.write('Selection\t')
         for sample in sampleList: 
              outputFile.write(sample +'\t+/-\t')
         outputFile.write('\n')
 
     # Produce Yield Table (optional)
-    if outputOp=='N' or outputOp=='A':
+    if outputOp=='W' or outputOp=='A':
         stringTest = ''
         for sel in Sel:
             if Sel[sel] in selectionList[variable]:
@@ -683,6 +638,8 @@ def main():
         if stringTest == '': outputFile.write('No Selection')        
         outputFile.write('\t')
     
+    if w_or_a_sig == 'w':
+        outputFile_sig.write("Variable\tBinExpZ Significance\n")
     
     # Create String with Selection Option Labels for plots
     SelectionString = ''
@@ -712,36 +669,53 @@ def main():
     # Make Plots
     totalSM = ROOT.TH1D('totalSM','totalSM',histBinNum[variable],histMinBin[variable],histMaxBin[variable]) 
     totalSM.Sumw2()
+    cut = ROOT.TCut(Sel['base_LFV'] + ' && ' + trigger_selection)
     for sample in sampleList:
-        htemp = ROOT.TH1D('hist_%s'%(sample),'hist_%s'%(sample),histBinNum[variable],histMinBin[variable],histMaxBin[variable]) # 25 bins from 0 to 500
+        ttree = inputFile.Get(sample)
+        hname = 'hist_%s'%(sample)
+        list_name = 'list_%s_%s'%(sample, trigger_sel_name) 
+        save_name = G.analysis_run_dir + 'lists/' + list_name + '.root'
+        if os.path.isfile(save_name):
+            rfile = ROOT.TFile.Open(save_name)
+            elist = rfile.Get(list_name)
+            ttree.SetEventList(elist)
+        else:
+            draw_list = '>> ' + list_name
+            ttree.Draw(draw_list, cut)
+            elist = ROOT.gROOT.FindObject(list_name)
+            ttree.SetEventList(elist)
+            elist.SaveAs(save_name)
+        htemp = ROOT.TH1D(hname,hname,histBinNum[variable],histMinBin[variable],histMaxBin[variable]) # 25 bins from 0 to 500
         htemp.Sumw2() # So that we get the correct errors after normalization
-        if 'data' in sample:
+        draw_str = '%s>>%s'%(variableList[variable],hname) 
+        sel = '(%s && %s && %s)'%(selectionList[variable],
+                                  Sel['base_LFV'],
+                                  trigger_selection)
+        if data_sample in sample:
             if blind_sig and 'm_coll' in variable: 
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base_LFV'],trigger_selection),'goff')
-                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && (m_coll<100 || m_coll>150))'%(selectionList[variable],Sel['base']),'goff')
-            else:
-                (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s && %s)'%(selectionList[variable],Sel['base_LFV'],trigger_selection),'goff')
-                #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'(%s && %s)'%(selectionList[variable],Sel['base']),'goff')
-            sampleList[sample] = htemp.Clone()
+                sel += '&& (m_coll<100 || m_coll>150)'
+            ttree.Draw(draw_str,sel,'goff')
+            sampleList[sample] = copy.copy(htemp)
             sampleList[sample].SetMarkerColor(ROOT.kBlack) 
             sampleList[sample].SetMarkerSize(1)
             sampleList[sample].SetMinimum(0.1)
             sampleList[sample].SetMaximum(histMaxY[variable])
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
-        elif 'Signal' in sample:
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s && %s)'%(luminosity,BR,selectionList[variable],Sel['base_LFV'],trigger_selection),'goff')
-            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*%s*eventweight*(%s && %s)'%(luminosity,BR,selectionList[variable],Sel['base']),'goff')
-            sampleList[sample] = htemp.Clone()
+        elif signal_sample in sample:
+            sel += '*%s*%s*eventweight'%(luminosity, BR) 
+            ttree.Draw(draw_str,sel,'goff')
+            sampleList[sample] = copy.copy(htemp)
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(colorList[sample]) 
             # Fill the legend
             legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
-            
         else: 
-            (inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s && %s)'%(luminosity,selectionList[variable],Sel['base_LFV'],trigger_selection),'goff') 
-            #(inputFile.Get(sample)).Draw('%s>>hist_%s'%(variableList[variable],sample),'%s*eventweight*(%s && %s)'%(luminosity,selectionList[variable],Sel['base']),'goff') 
-            sampleList[sample] = htemp.Clone()
+            sel += '*%s*eventweight'%(luminosity)
+            ttree.Draw(draw_str,sel,'goff') 
+            sampleList[sample] = copy.copy(htemp)
+            htemp.SetDirectory(ROOT.NULL)
+            sampleList[sample].SetDirectory(0)
             sampleList[sample].SetLineWidth(2) 
             sampleList[sample].SetLineColor(ROOT.kBlack) 
             sampleList[sample].SetFillColor(colorList[sample]) 
@@ -752,11 +726,27 @@ def main():
         error    = ROOT.Double(0.)
         integral = sampleList[sample].IntegralAndError(0,-1,error)
         print "%*s = %*.2f +/- %*.2f"%(15,sample,10,integral,10,error) 
-        if outputOp != '': outputFile.write('%*.2f\t%*.2f\t'%(10,integral,10,error))    
+        write_str = '%*.2f\t%*.2f\t'%(10,integral,10,error)
+        if outputOp: outputFile.write(write_str)    
         htemp.Clear()
-    if outputOp != '': outputFile.write('\n')
-    print '='*50
+    # Determine Significance
+    bkgd_err = ROOT.Double(0.)
+    lw_bnd = totalSM.FindBin(mass_window[0])
+    up_bnd = totalSM.FindBin(mass_window[1])
+    bkgd_int  = totalSM.IntegralAndError(lw_bnd, up_bnd, bkgd_err)
 
+    print "Background Integral in mass window = ", bkgd_int
+    if bkgd_int > 0:
+        bkgd_err_frac = bkgd_err/bkgd_int
+        sig_int = sampleList[signal_sample].Integral(lw_bnd, up_bnd)
+        ZbinSig = BinZ(sig_int,bkgd_int, bkgd_err_frac)
+        print "Signal Significance (BinExpZ) = ", ZbinSig
+        if w_or_a_sig:
+            write_str = "%s\t%.3f\n"%(variable,ZbinSig)
+            outputFile_sig.write(write_str)
+    if outputOp: outputFile.write('\n')
+    print '='*50
+    
     # Draw
     canvas = ROOT.TCanvas('canvas','canvas',500,500)
     canvas.SetFillColor(0)
@@ -774,6 +764,7 @@ def main():
     sampleList[data_sample].GetYaxis().SetTitle('Events')
     stack.Draw('same && hists');
     sampleList[data_sample].Draw('p && same');
+    sampleList[signal_sample].Draw('HIST && SAME');
     legend.Draw()
     if ('Jet' not in variable) or ('SR' not in variable): ROOT.gPad.SetLogy(True) 
     ROOT.gPad.RedrawAxis()
@@ -798,7 +789,8 @@ def main():
     ROOT.gPad.SetGridy(1)
 
     # Save
-    if outputOp!='': outputFile.close()
+    if outputOp: outputFile.close()
+    outputFile_sig.close()
     canvas.SaveAs('%s%s%s.eps'%(output_dir,plot_name_prefix,variable)) 
 
 def buildRatioErrorBand(inputGraph, outputGraph):

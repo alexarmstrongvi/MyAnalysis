@@ -21,7 +21,7 @@ output_filelist = [ "Signal",
                     "Wjets",
                     ]
 directory_with_inputs = _g.analysis_dir+"inputs_LFV/"
-directory_with_files =  _g.analysis_run_dir+"outputs/"
+directory_with_files =  _g.analysis_run_dir+"outputs_WP85/"
 output_directory =      _g.analysis_run_dir+"samples/"
 dsid_directory =        _g.analysis_run_dir+"dsid_filelist/"
 
