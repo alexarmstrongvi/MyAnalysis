@@ -53,27 +53,44 @@ DF_OS = 'dilep_flav <= 1 && l_q[0]*l_q[1]<0'
 SF_OS = 'dilep_flav > 1 && l_q[0]*l_q[1]<0'
 lep_eta_cut = 'fabs(l_eta[0]) <= 2.4 && fabs(l_eta[1]) <= 2.4'
 
+# Same flavor lepton triggers
 ee15_trig   = 'pass_HLT_2e12_lhloose_L12EM10VH'
-emu15_trig  = 'pass_HLT_e17_lhloose_mu14'
 mumu15_trig = 'pass_HLT_mu18_mu8noL1'
 ee16_trig   = 'pass_HLT_2e17_lhvloose_nod0'
-emu16_trig  = 'pass_HLT_e17_lhloose_nod0_mu14'
 mumu16_trig = 'pass_HLT_mu22_mu8noL1'
-# OLD Triggers that differ from HIGGS Run-II INT Note
-#e15_trig    = '(pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_L1EM20VH ||  pass_HLT_e24_lhmedium_iloose_L1EM18VH)'
-#mu16_trig   = '(pass_HLT_mu50 || pass_HLT_mu24_iloose || pass_HLT_mu24_iloose_L1MU15 || pass_HLT_mu24_imedium || pass_HLT_mu26_ivarmedium)' 
-#e16_trig    = '(pass_HLT_e24_lhtight_nod0_ivarloose || pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)'
-e15_trig    = '(pass_HLT_e60_lhmedium || pass_HLT_e24_lhmedium_L1EM20VH)'
-mu15_trig   = '(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu26_ivarmedium || pass_HLT_mu50)'
+# Different flaovr lepton triggs
+emu15_trig  = 'pass_HLT_e17_lhloose_mu14'
+emu16_trig  = 'pass_HLT_e17_lhloose_nod0_mu14'
+# Single lepton triggers
+e15_trig    = '(pass_HLT_e24_lhmedium_L1EM20VH || pass_HLT_e60_lhmedium || pass_HLT_e120_lhloose)'
+mu15_trig   = '(pass_HLT_mu20_iloose_L1MU15 || pass_HLT_mu50)'
+e16_trig    = '(pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0 || pass_HLT_e140_lhloose_nod0)'
 mu16_trig   = '(pass_HLT_mu26_ivarmedium || pass_HLT_mu50)' 
-e16_trig    = '(pass_HLT_e26_lhtight_nod0_ivarloose || pass_HLT_e60_lhmedium_nod0)'
+# Triggers with added pT requirements
+e15_trig_emu_pT   = '(%s && dilep_flav == 0 && l_pt[0] >= 25)'%e15_trig
+mu15_trig_emu_pT  = '(%s && dilep_flav == 0 && l_pt[0] < 25 && l_pt[1] >= 21)'%mu15_trig
+e16_trig_emu_pT   = '(%s && dilep_flav == 0 && l_pt[0] >= 27)'%e16_trig
+mu16_trig_emu_pT  = '(%s && dilep_flav == 0 && l_pt[0] < 27 && l_pt[1] >= 28)'%mu16_trig
+emu15_trig_emu_pT = '(%s && dilep_flav == 0 && 18 <= l_pt[0] && l_pt[0] < 25 && 15 <= l_pt[1] && l_pt[1] < 21)'%emu15_trig
+emu16_trig_emu_pT = '(%s && dilep_flav == 0 && 18 <= l_pt[0] && l_pt[0] < 27 && 15 <= l_pt[1] && l_pt[1] < 28)'%emu16_trig
+e15_trig_mue_pT   = '(%s && dilep_flav == 1 && l_pt[1] >= 25)'%e15_trig
+mu15_trig_mue_pT  = '(%s && dilep_flav == 1 && l_pt[1] < 25 && l_pt[0] >= 21)'%mu15_trig
+e16_trig_mue_pT   = '(%s && dilep_flav == 1 && l_pt[1] >= 27)'%e16_trig
+mu16_trig_mue_pT  = '(%s && dilep_flav == 1 && l_pt[1] < 27 && l_pt[0] >= 28)'%mu16_trig
+emu15_trig_mue_pT = '(%s && dilep_flav == 1 && 18 <= l_pt[1] && l_pt[1] < 25 && 15 <= l_pt[0] && l_pt[0] < 21)'%emu15_trig
+emu16_trig_mue_pT = '(%s && dilep_flav == 1 && 18 <= l_pt[1] && l_pt[1] < 27 && 15 <= l_pt[0] && l_pt[0] < 28)'%emu16_trig
+# Combined triggers
+e15_trig_pT = '(%s || %s)'%(e15_trig_emu_pT, e15_trig_mue_pT)
+mu15_trig_pT = '(%s || %s)'%(mu15_trig_emu_pT, mu15_trig_mue_pT)
+e16_trig_pT = '(%s || %s)'%(e16_trig_emu_pT, e16_trig_mue_pT)
+mu16_trig_pT = '(%s || %s)'%(mu16_trig_emu_pT, mu16_trig_mue_pT)
+emu15_trig_pT = '(%s || %s)'%(emu15_trig_emu_pT, emu15_trig_mue_pT)
+emu16_trig_pT = '(%s || %s)'%(emu16_trig_emu_pT, emu16_trig_mue_pT)
 
-#dilep15_trig_wSF     = '(treatAsYear==2015 && (%s || %s || %s))'%(ee15_trig,emu15_trig,mumu15_trig)
-#dilep16_trig_wSF     = '(treatAsYear==2016 && (%s || %s || %s))'%(ee16_trig,emu16_trig,mumu16_trig)
-dilep15_trig     = '(treatAsYear==2015 && %s)'%emu15_trig
-dilep16_trig     = '(treatAsYear==2016 && %s)'%emu16_trig
-singlelep15_trig = '(treatAsYear==2015 && (%s || %s))'%(e15_trig,mu15_trig)
-singlelep16_trig = '(treatAsYear==2016 && (%s || %s))'%(e16_trig,mu16_trig)
+dilep15_trig      = '(treatAsYear==2015 && %s)'%emu15_trig_pT
+dilep16_trig     = '(treatAsYear==2016 && %s)'%emu16_trig_pT
+singlelep15_trig = '(treatAsYear==2015 && (%s || %s))'%(e15_trig_pT,mu15_trig_pT)
+singlelep16_trig = '(treatAsYear==2016 && (%s || %s))'%(e16_trig_pT,mu16_trig_pT)
 
 Sel = {
     'dilep_trig': '(%s || %s)'%(dilep15_trig, dilep16_trig),
@@ -97,11 +114,7 @@ Sel = {
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
     'mumu'      : 'dilep_flav == 3',
-    'base_LFV'      : 'mll>=20 && l_q[0]*l_q[1]<0 && dilep_flav <= 1\
-                    &&(((l_pt[0] >= 28 && l_pt[1] >= 15) && (dilep_flav==0))\
-                    || ((l_pt[0] >= 28 && l_pt[1] >= 20) && (dilep_flav==1)))',
-                    #|| ((l_pt[0] >= 28 && l_pt[1] >= 20) && (dilep_flav==2))\
-                    #|| ((l_pt[0] >= 28 && l_pt[1] >= 10) && (dilep_flav==3)))',
+    'base_LFV'      : 'mll>=20 && l_q[0]*l_q[1]<0 && dilep_flav <= 1',
     # Special Cuts for Testing
     'SRwJnoJReq'   : 'l_pt[0] >= 35 && l_pt[1] >= 12'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS
