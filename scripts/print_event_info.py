@@ -7,20 +7,8 @@
 # (C) University of California, Irvine
 ################################################################################
 
-import sys
 import argparse
 import ROOT
-
-#selection = '1'
-
-trigger_list = ['HLT_mu18_mu8noL1',
-                'HLT_2e12_lhloose_L12EM10VH',
-                'HLT_e17_lhloose_mu14',
-                'HLT_mu20_mu8noL1',
-                'HLT_2e15_lhvloose_L12EM13VH',
-                'HLT_2e17_lhvloose_nod0',
-                'HLT_mu22_mu8noL1',
-                'HLT_e17_lhloose_nod0_mu14']
 
 def print_lepton(event):
     """ Print relevent lepton info for an event"""
@@ -61,33 +49,34 @@ def print_lepton(event):
         print_str += 'HLT_mu22_mu8noL1, '
     if event.pass_HLT_e17_lhloose_nod0_mu14:
         print_str += 'HLT_e17_lhloose_nod0_mu14, '
-    print_str = print_str[:-2]
+    if print_str.endswith(', '): print_str = print_str[:-2]
     print_str += '\n'
     
     print_str += '\tSingle lepton triggers : '
     if event.pass_HLT_e60_lhmedium:
         print_str += 'HLT_e60_lhmedium, '
-    if event.pass_HLT_e24_lhmedium_L1EM20VH:
-        print_str += 'HLT_e24_lhmedium_L1EM20VH, '
     if event.pass_HLT_mu20_iloose_L1MU15:
         print_str += 'HLT_mu20_iloose_L1MU15, '
     if event.pass_HLT_mu26_ivarmedium:
         print_str += 'HLT_mu26_ivarmedium, '
     if event.pass_HLT_mu50:
         print_str += 'HLT_mu50, '
-    if event.pass_HLT_e24_lhtight_nod0_ivarloose:
-        print_str += 'HLT_e24_lhtight_nod0_ivarloose, '
     if event.pass_HLT_e26_lhtight_nod0_ivarloose:
         print_str += 'HLT_e26_lhtight_nod0_ivarloose, '
     if event.pass_HLT_e60_lhmedium_nod0:
         print_str += 'HLT_e60_lhmedium_nod0, '
-    print_str = print_str[:-2]
+    if print_str.endswith(', '): print_str = print_str[:-2]
     print_str += '\n'
 
     return print_str
 
+def pass_selection(event):
+    """ Apply additional selections to event"""
+    return event.isMC
+
 def main():
     """ Main function"""
+    print "Writing event info:"
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file', help='Input .root file', required=True)
     parser.add_argument('-t', '--tree', help='ttree name', required=True)
@@ -99,12 +88,19 @@ def main():
     ofile = open(ofile_name, 'w')
     ifile = ROOT.TFile(file_name,'READ')
     tree = ifile.Get(tree_name)
+    selected_events = 0
+    total_events = 0
+    
     for iii, event in enumerate(tree):
-        #  TODO: skip if event doesn't pass selection
-        ofile.write(print_lepton(event))
-        if iii > 10:
-            ofile.close()
-            sys.exit()
+        if iii%10000 == 0: print "\tProcessed %d events"%iii
+        if pass_selection(event):
+            ofile.write(print_lepton(event))
+            selected_events += 1
+        total_events += 1
+    perc = selected_events/float(total_events)*100
+    print "Events passing selections: %d/%d (%.1f%%)"%(selected_events,
+                                                           total_events,
+                                                           perc)
     ofile.close()
 
 if __name__ == '__main__':
