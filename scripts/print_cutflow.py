@@ -5,7 +5,7 @@
 import ROOT
 import global_variables as G
 from argparse import ArgumentParser
-from make_stack_plot import Sel 
+from make_stack_plot import Sel, luminosity
 from collections import OrderedDict
 
 ROOT.gROOT.SetBatch(True)
@@ -28,20 +28,23 @@ def main():
     
     # Selection List
     selection_dict = OrderedDict([
-        ('trigger', Sel['singlelep_trig']),
+        ('nSignalTaus', 'nSignalTaus == 0'),
+        ('trigger', Sel['single_or_dilep_trig']),
         ('opp-sign', 'l_q[0]*l_q[1]<0'),
-        ('mll >= 20', 'mll >= 20'),
-        ('opp-flav', 'dilep_flav <= 1'),
+        #('opp-flav', 'dilep_flav <= 1'),
+        #('met cut', '(dilep_flav<=1 && met > 20) || (dilep_flav > 1 && met > 55)'),
         ('pt0 >= 35', 'l_pt[0] >= 35'),
         ('pt1 >= 15', 'l_pt[1] >= 15' ),
-        ('jet-veto', 'nCentralLJets==0 && nCentralBJets==0'),
-        ('dphi-l0l1', 'dphi_ll>=2.3'),
+        ('b-veto', 'nCentralBJets==0'),
         ('dphi-l1met', 'dphi_l1_met<=0.7')
+        #('mll >= 20', 'mll >= 20'),
+        #('dphi-l0l1', 'dphi_ll>=2.3'),
     ])
 
     # Cutflow 
     cutflow = OrderedDict()
     selection = '1'
+    #selection = '*%s*eventweight'%('1')#luminosity)
     print "Running with no selection"
     cutflow['None'] = itree.Draw(draw_hist,selection,'goff')
     #cutflow["None"] = hist.Integral(0,-1)

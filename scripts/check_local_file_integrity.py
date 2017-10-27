@@ -8,24 +8,19 @@ import python_tools as tools
 import collections
 
 # Configuration Settings
-old_file_dir = G.input_files
-new_file_dir = G.input_files[:-1] + '_check/'
+local_file_dir = '/data/uclhc/uci/user/dantrim/susynt_productions/n0235/'
+old_file_dir = G.analysis_dir + 'LOCAL_inputs_LFV/'
 
 def main():
     # Get list of local files
     old_root_files = get_root_file_dict(old_file_dir)
-    new_root_files = get_root_file_dict(new_file_dir)
     missing_old_files = collections.defaultdict(list)
     stable_old_files = collections.defaultdict(list)
     for key, val in old_root_files.items():
-        if key not in new_root_files:
+        if not os.path.isfile(key):
             missing_old_files[val].append(key) 
         else:
             stable_old_files[val].append(key)
-    missing_new_files = collections.defaultdict(list)
-    for key, val in new_root_files.items():
-        if key not in old_root_files:
-            missing_new_files[val].append(key) 
     with open('incomplete_samples.txt','w') as ofile:
         for sample in sorted(list(missing_old_files.keys())):
             ofile.write(sample+'\n')
@@ -33,9 +28,6 @@ def main():
         for sample in sorted(list(stable_old_files.keys())):
             if sample not in missing_old_files:
                 ofile.write(sample+'\n')
-        ofile.write('\n')
-        for sample in sorted(list(missing_new_files.keys())):
-            ofile.write(sample+'\n')
     print "Created incomplete and complete sample txt files."
 def get_root_file_dict(dir_with_files):
     counter = 0
@@ -51,7 +43,7 @@ def get_root_file_dict(dir_with_files):
             dataset_dir = sample_dir + dataset_dir
             with open(dataset_dir,'r') as f:
                 for line in f.readlines():
-                    file_name = line.strip().split('/')[-1].split(':')[-1]
+                    file_name = line.strip().split('}')[-1][1:]
                     if counter < 4:
                         print "Test file_name: ", file_name
                         counter += 1
