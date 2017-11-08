@@ -224,17 +224,10 @@ int main(int argc, char* argv[])
   *cutflow << CutName("exactly two signal leptons") << [](Superlink* sl) -> bool {
       return (sl->leptons->size() == 2);
   };
-
 //  *cutflow << CutName("opposite sign muon and electron") << [&](Superlink* sl) -> bool {
 //      return ((sl->leptons->at(0)->isEle() && sl->leptons->at(1)->isMu() && sl->leptons->at(0)->q!=sl->leptons->at(1)->q) ||
 //              (sl->leptons->at(1)->isEle() && sl->leptons->at(0)->isMu() && sl->leptons->at(0)->q!=sl->leptons->at(1)->q));
 //  };
-  *cutflow << CutName("leading lepton pt >= 20GeV") << [](Superlink* sl) -> bool {
-      return (sl->leptons->at(0)->pt>=20);
-  };
-  *cutflow << CutName("sub-leading lepton pt >= 12GeV") << [](Superlink* sl) -> bool {
-      return (sl->leptons->at(1)->pt>=12);
-  };
   *cutflow << CutName("leading lepton eta <= 2.4") << [](Superlink* sl) -> bool {
       return (fabs(sl->leptons->at(0)->eta)<=2.4);
   };
@@ -384,13 +377,13 @@ int main(int argc, char* argv[])
       *cutflow << SaveVar();
   }
   *cutflow << NewVar("HLT_e120_lhloose trigger bit"); {
-      *cutflow << HFTname("pass_e120_lhloose");
+      *cutflow << HFTname("pass_HLT_e120_lhloose");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e120_lhloose"); };
       *cutflow << SaveVar();
   }
   *cutflow << NewVar("HLT_e140_lhloose_nod0 trigger bit"); {
-      *cutflow << HFTname("pass_e140_lhloose_nod0");
+      *cutflow << HFTname("pass_HLT_e140_lhloose_nod0");
       *cutflow << [](Superlink* sl, var_bool*) -> bool { 
           return sl->tools->triggerTool().passTrigger(sl->nt->evt()->trigBits, "HLT_e140_lhloose_nod0"); };
       *cutflow << SaveVar();
