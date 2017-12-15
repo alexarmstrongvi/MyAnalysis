@@ -29,7 +29,7 @@ def main():
     # Selection List
     selection_dict = OrderedDict([
         ('nSignalTaus', 'nSignalTaus == 0'),
-        ('trigger', Sel['single_or_dilep_trig']),
+        ('trigger', Sel['singlelep_trig']),
         ('opp-sign', 'l_q[0]*l_q[1]<0'),
         #('opp-flav', 'dilep_flav <= 1'),
         #('met cut', '(dilep_flav<=1 && met > 20) || (dilep_flav > 1 && met > 55)'),

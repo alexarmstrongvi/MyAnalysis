@@ -58,7 +58,7 @@ ee15_trig   = 'pass_HLT_2e12_lhloose_L12EM10VH'
 mumu15_trig = 'pass_HLT_mu18_mu8noL1'
 ee16_trig   = 'pass_HLT_2e17_lhvloose_nod0'
 mumu16_trig = 'pass_HLT_mu22_mu8noL1'
-# Different flaovr lepton triggs
+# Different flavor lepton triggs
 emu15_trig  = 'pass_HLT_e17_lhloose_mu14'
 emu16_trig  = 'pass_HLT_e17_lhloose_nod0_mu14'
 # Single lepton triggers
