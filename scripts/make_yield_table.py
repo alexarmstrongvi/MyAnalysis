@@ -3,7 +3,8 @@ Program: make_yield_table.py
 Author: Alex Armstrong <alarmstr@cern.ch>
 Copyright: (C) Dec 8th, 2017; University of California, Irvine
 """
-from optparse import OptionParser
+from argparse import ArgumentParser
+from collections import namedtuple
 import ROOT
 import tabulate
 import global_variables as G
@@ -12,29 +13,28 @@ import global_variables as G
 # Configure
 data_sample_name = 'data_all'
 signal_sample_name = 'Signal'
+output_file_name = 'YieldTable.txt'
 
 def main():
     """ Make yield table """
     # User input
-    parser = OptionParser()
-    parser.add_option('-f', '--file',
-                      required=True,
+    parser = ArgumentParser()
+    parser.add_argument('file',
                       help='Input .root file with different samples')
-    parser.add_option('-s', '--samples',
-                      required=True,
+    parser.add_argument('samples',
                       help='csv list of samples for the yield table')
-    parser.add_option('-r', '--regions',
-                      default='',
+    parser.add_argument('-r', '--regions',\
+                      default='',\
                       help='csv list of regions for the yield table')
-    parser.add_option('-c', '--channels',
-                      default='',
+    parser.add_argument('-c', '--channels',\
+                      default='',\
                       help='csv list of channels for the yield table')
-    options, args = parser.parse_args()
+    args = parser.parse_args()
 
-    ifile_name = options.file
-    sample_list  = [x.strip() for x in options.samples.split(",")]
-    region_list  = [x.strip() for x in options.regions.split(",")]
-    channel_list = [x.strip() for x in options.channels.split(",")]
+    ifile_name = args.file
+    sample_list  = [x.strip() for x in args.samples.split(",")]
+    region_list  = [x.strip() for x in args.regions.split(",")]
+    channel_list = [x.strip() for x in args.channels.split(",")]
 
     # Initialize
     ifile = ROOT.TFile(ifile_name, 'READ')
@@ -42,39 +42,61 @@ def main():
         print "ERROR :: Unable to open %s"%ifile
     hname = 'hist'
     draw_str = 'isMC>>%s'%hname
-    ofile = open('YieldTable.txt', 'w')
+    ofile = open(output_file_name, 'w')
+    ofile.write("YieldTable\n")
+    ofile.write("Region,Channel,Sample,Yield,Uncertainty\n")
+    Yields = namedtuple('Yields',['value','error'])
 
+    #------------------------------------------------------------------------->>
     # Main looper
     for region in region_list:
+        print '\n\n============================================'
+        print 'Region: %s'%region
         for channel in channel_list:
-            print '\n\n============================================'
-            print 'Region: %s\n Channel: %s'%(region, channel)
+            print '\tChannel: %s'%channel
             yield_dict = {}
-            mc_total = [0, 0]
+            mc_total = Yields(value=0,error=0)
             for sample in sample_list:
                 # Set variables
                 ttree = ifile.Get(sample)
-                selection = '%s && %s'%(G.Sel[region], G.Sel[channel])
+                if not ttree:
+                    print 'ERROR :: %s not found in %s'%(sample, ifile_name)
+                selection = '(%s && %s)'%(G.Sel[region], G.Sel[channel])
                 hist = ROOT.TH1D(hname, hname, 3, -0.5, 2.5)
 
                 # Get event yields
+                if signal_sample_name in sample:
+                    selection += '*%s*%s*eventweight'%(G.luminosity, G.BR)
+                elif data_sample_name in sample:
+                    pass
+                else:
+                    selection += '*%s*eventweight'%(G.luminosity)
                 ttree.Draw(draw_str, selection, 'goff')
                 error = ROOT.Double(0.)
                 integral = hist.IntegralAndError(0, -1, error)
 
                 # Store results
-                print "%*s = %*.2f +/- %*.2f"%(15, sample, 10, integral, 10, error)
-                yield_dict[sample] = [integral, error]
+                print "\t%*s = %*.2f +/- %*.2f"%(
+                        15, sample, 10, integral, 10, error)
+                ofile.write('%s,%s,%s,%f,%f\n'%(
+                    region, channel, sample, integral, error))
+                yield_dict[sample] = Yields(value=integral, error=error)
                 if data_sample_name not in sample and signal_sample_name not in sample:
                     mc_zip = zip(mc_total, yield_dict[sample])
-                    mc_total = [sum(x) for x in mc_zip]
+                    tmp_sum = [sum(x) for x in mc_zip]
+                    # Convert list into namedtuple
+                    mc_total = Yields._make(tmp_sum)
                 hist.Clear()
             yield_dict['MC_total'] = mc_total
-            data_yield = float(yield_dict[data_sample_name])
-            yield_dict['MC_data_ratio'] = mc_total[0] / data_yield
-            ofile.write('\n\n============================================')
-            ofile.write('Region: %s\n Channel: %s'%(region, channel))
-            ofile.write(tabulate.tabulate(yield_dict))
+            print "\t%*s = %*.2f +/- %*.2f"%(
+                    15,'MC Total', 10, mc_total.value, 10, mc_total.error)
+            ofile.write('%s,%s,MC_total,%f,%f\n'%(
+                region, channel, mc_total.value, mc_total.error))
+            data_yield = float(yield_dict[data_sample_name].value)
+            yield_dict['MC_data_ratio'] = mc_total.value / data_yield
+            print "\t%*s = %.4f"%(15,'MC/Data',yield_dict['MC_data_ratio'])
+            ofile.write('MC/Data,%f\n'%yield_dict['MC_data_ratio'])
+            print "\n...Output written to", output_file_name
     ofile.close()
 
 if __name__ == '__main__':

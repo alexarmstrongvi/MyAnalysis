@@ -58,12 +58,18 @@ singlelep15_trig = '(treatAsYear==2015 && (%s || %s))'%(e15_trig_pT,mu15_trig_pT
 singlelep16_trig = '(treatAsYear==2016 && (%s || %s))'%(e16_trig_pT,mu16_trig_pT)
 
 Sel = {
+    ''          : '1',
     'dilep_trig': '(%s || %s)'%(dilep15_trig, dilep16_trig),
     'singlelep_trig': '(%s || %s)'%(singlelep15_trig,singlelep16_trig),
     'Baseline'  : 'l_pt[0] >= 45 && l_pt[1] >= 15' 
                    + '&& 30 < MLL && MLL < 150' 
                    + '&& nCentralBJets==0'
+                   + '&& (dilep_flav != 0 || el0_track_pt/el0_clus_pt < 1.2)'
                    + '&& ' + DF_OS,
+    'VBF'       : 'JetN_g30 >= 2'
+                  + '&& j_pt[0] > 40'
+                  + '&& Mjj > 400'
+                  + '&& DEtaJJ > 3',
     'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 15'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS,
     'SymSel'    : 'l_pt[0] >= 20 && l_pt[1] >= 20'
@@ -83,7 +89,7 @@ Sel = {
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
     'mumu'      : 'dilep_flav == 3',
-    #'base_LFV'      : 'MLL>=20 && l_q[0]*l_q[1]<0 && dilep_flav <= 1',
+    'base_LFV'      : DF_OS,
     # Special Cuts for Testing
     'SRwJnoJReq'   : 'l_pt[0] >= 35 && l_pt[1] >= 12'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS
@@ -95,9 +101,7 @@ Sel = {
                     &&((l_pt[0] >= 12 && l_pt[1] >= 8) && (dilep_flav<=1))',
     'jets_Best' : 'nForwardJets==nForwardJets_ge40',
     }
-Sel['base_LFV'] = Sel['Baseline'] + ' && ' + Sel['emu']
-Sel['Baseline_emu'] = Sel['Baseline'] + ' && ' + Sel['emu']
-Sel['Baseline_mue'] = Sel['Baseline'] + ' && ' + Sel['mue']
+Sel['Optimized'] = "!(%s) && DphiLep1MET <= 1 && l_pt[0] > 50 && l_pt[1] < 40 && (MET+l_pt[1])/l_pt[1] > 0.5"%Sel['VBF'] 
 trigger_sel_name = 'singlelep_trig'
 trigger_selection = Sel[trigger_sel_name]
 

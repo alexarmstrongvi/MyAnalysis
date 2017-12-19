@@ -5,7 +5,7 @@ import glob
 import subprocess
 
 ana_type   = "LFV"
-use_local = False
+use_local = True
 susyNtType = "n0235"
 userName = "armstro1"
 ana_name            = "makeMiniNtuple_HIGGS"
