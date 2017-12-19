@@ -11,7 +11,7 @@ output_dir = analysis_run_dir+'outputs/'
 dsid_dir = analysis_run_dir+'dsid_filelist/'
 
 S2L_trigger = '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)&&treatAsYear==2015)||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)&&treatAsYear==2016))'
-S2L_ptCuts  = 'l_pt[0]>25.&&l_pt[1]>20.&&mll>40.'
+S2L_ptCuts  = 'l_pt[0]>25.&&l_pt[1]>20.&&MLL>40.'
 S2L_isOS    = '(l_q[0]*l_q[1])<0'
 S2L_jetVeto = 'nCentralBJets==0 && nForwardJets==0 && nCentralLJets==0'
 DF_OS = 'dilep_flav <= 1 && l_q[0]*l_q[1]<0'
@@ -60,37 +60,44 @@ singlelep16_trig = '(treatAsYear==2016 && (%s || %s))'%(e16_trig_pT,mu16_trig_pT
 Sel = {
     'dilep_trig': '(%s || %s)'%(dilep15_trig, dilep16_trig),
     'singlelep_trig': '(%s || %s)'%(singlelep15_trig,singlelep16_trig),
+    'Baseline'  : 'l_pt[0] >= 45 && l_pt[1] >= 15' 
+                   + '&& 30 < MLL && MLL < 150' 
+                   + '&& nCentralBJets==0'
+                   + '&& ' + DF_OS,
     'BaseSel'   : 'l_pt[0] >= 45 && l_pt[1] >= 15'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS,
     'SymSel'    : 'l_pt[0] >= 20 && l_pt[1] >= 20'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS,
     'OpSel'     : 'l_pt[0] >= 45 && l_pt[1] >= 15'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS
-                  + ' && ' + 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
+                  + ' && ' + 'DphiLep0MET>=2.5 && DphiLep1MET<=0.7 && DphiLL>=2.3 && dpt_ll>=7.0',
     'SRwJets'   : 'l_pt[0] >= 35 && l_pt[1] >= 15'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS
-                  + ' && ' + 'dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0'
+                  + ' && ' + 'DphiLep0MET>=1.0 && DphiLep1MET<=0.5 && DphiLL>=1.0 && dpt_ll>=1.0'
                   + ' && ' + 'nCentralLJets>=1 && nCentralBJets==0 && nSignalTaus == 0',
     'SRnoJets'  : 'l_pt[0] >= 35 && l_pt[1] >= 15 && '
                   + lep_eta_cut + ' && ' + DF_OS
-                  + ' && ' + 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0'
+                  + ' && ' + 'DphiLep0MET>=2.5 && DphiLep1MET<=0.7 && DphiLL>=2.3 && dpt_ll>=7.0'
                   + ' && ' + 'nCentralLJets==0 && nCentralBJets==0 && nSignalTaus == 0',
     'emu'       : 'dilep_flav == 0',
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
     'mumu'      : 'dilep_flav == 3',
-    'base_LFV'      : 'mll>=20 && l_q[0]*l_q[1]<0 && dilep_flav <= 1',
+    #'base_LFV'      : 'MLL>=20 && l_q[0]*l_q[1]<0 && dilep_flav <= 1',
     # Special Cuts for Testing
     'SRwJnoJReq'   : 'l_pt[0] >= 35 && l_pt[1] >= 12'
                   + ' && ' + lep_eta_cut + ' && ' + DF_OS
-                  + ' && ' + 'dphi_l0_met>=1.0 && dphi_l1_met<=0.5 && dphi_ll>=1.0 && dpt_ll>=1.0',
+                  + ' && ' + 'DphiLep0MET>=1.0 && DphiLep1MET<=0.5 && DphiLL>=1.0 && dpt_ll>=1.0',
     'SRnJnoJReq'  : 'l_pt[0] >= 35 && l_pt[1] >= 12 && '
                   + lep_eta_cut + ' && ' + DF_OS
-                  + ' && ' + 'dphi_l0_met>=2.5 && dphi_l1_met<=0.7 && dphi_ll>=2.3 && dpt_ll>=7.0',
-    'base_LFV_run1'      : 'mll>=20 && l_q[0]*l_q[1]<0\
+                  + ' && ' + 'DphiLep0MET>=2.5 && DphiLep1MET<=0.7 && DphiLL>=2.3 && dpt_ll>=7.0',
+    'base_LFV_run1'      : 'MLL>=20 && l_q[0]*l_q[1]<0\
                     &&((l_pt[0] >= 12 && l_pt[1] >= 8) && (dilep_flav<=1))',
     'jets_Best' : 'nForwardJets==nForwardJets_ge40',
     }
+Sel['base_LFV'] = Sel['Baseline'] + ' && ' + Sel['emu']
+Sel['Baseline_emu'] = Sel['Baseline'] + ' && ' + Sel['emu']
+Sel['Baseline_mue'] = Sel['Baseline'] + ' && ' + Sel['mue']
 trigger_sel_name = 'singlelep_trig'
 trigger_selection = Sel[trigger_sel_name]
 
@@ -104,7 +111,7 @@ BR = '0.01'
 
 histMaxBin = OrderedDict([ # default is 500
     ('nBaseJets',          40),
-    ('nCentralLJets',      20),
+    ('nCentralLJets',      7),
     ('nCentralBJets',      10),
     ('nForwardJets',       15),
     ('j_pt[0]',             500),
@@ -135,7 +142,7 @@ histMaxBin = OrderedDict([ # default is 500
     ('l_pt[1]',             800.),
     ('l_eta[0]',            3.),
     ('l_eta[1]',            3.),
-    ('m_coll',              300),
+    ('MCollASym',              300),
     ('m_coll_emu_SRnoJets', 400),
     ('m_coll_mue_SRnoJets', 400),
     ('m_coll_emu_SRJets',   400),
@@ -160,15 +167,22 @@ histMaxBin = OrderedDict([ # default is 500
     ('SRnJets_noJetdPtll',     400),
     ('m_coll_emu_SymSel',   400),
     ('m_coll_mue_SymSel',   400),
-    ('dphi_l0_met',         1.5*ROOT.TMath.Pi()),
-    ('dphi_l1_met',         1.5*ROOT.TMath.Pi()),
-    ('dphi_ll',             1.5*ROOT.TMath.Pi()),
+    ('DphiLep0MET',         1.5*ROOT.TMath.Pi()),
+    ('DphiLep1MET',         1.5*ROOT.TMath.Pi()),
+    ('DphiLL',             1.5*ROOT.TMath.Pi()),
+    ('DEtaLL',             1.5*ROOT.TMath.Pi()),
     ('dpt_ll',              800),
-    ('mll_ee',              500),
-    ('mll_mumu',            500),
-    ('mll_SF',              500),
-    ('met',                 500),
-    ('dilep_flav',          8)])
+    ('MLL_ee',              500),
+    ('MLL_mumu',            500),
+    ('MLL_SF',              500),
+    ('met',                 200),
+    ('dilep_flav',          8),
+    ('l_pt[0]'          ,200),
+    ('l_pt[1]'          ,100),
+    ('ptll'          ,200),
+    ('drll'          ,6),
+    ('DphiLL'          ,3.2),
+    ('DEtaLL'          ,6)])
 for pT in [20,30,40,50,60]:
     histMaxBin['SRJets_CLge%d'%pT] = 400
     histMaxBin['SRnJets_CLge%d'%pT] = 400
@@ -182,10 +196,10 @@ histMinBin = OrderedDict([ #default is zero
     ('l_eta[0]',    -3.),
     ('l_eta[1]',    -3.),
     ('l1_pt_ee',    0),
-    ('dphi_l0_met', 0),
-    ('dphi_l1_met', 0),
-    ('dphi_ll',     0),
-    ('m_coll',      50)])
+    ('DphiLep0MET', 0),
+    ('DphiLep1MET', 0),
+    ('DphiLL',     0),
+    ('MCollASym',      50)])
 
 histMaxY = { #default is 300 million
     'j_jvt'             :3*(10**12),
@@ -227,7 +241,7 @@ histMaxY = { #default is 300 million
 
 histBinNum = { #default is 25
     'nBaseJets'             :40,
-    'nCentralLJets'         :20,
+    'nCentralLJets'         :7,
     'nCentralBJets'         :10,
     'nForwardJets'          :15,
     'j_pt[0]'               :25,
@@ -242,13 +256,13 @@ histBinNum = { #default is 25
     'j_flav_Jge40'          :8,
     'j_flav_Jge50'          :8,
     'j_flav_Jge60'          :8,
-    'mll_SF'                :25,
-    'mll_ee'                :25,
-    'mll_mumu'              :25,
+    'MLL_SF'                :25,
+    'MLL_ee'                :25,
+    'MLL_mumu'              :25,
     'dilep_flav'            :8,
-    'dphi_l0_met'           :36,
-    'dphi_l1_met'           :36,
-    'dphi_ll'               :36,
+    'DphiLep0MET'           :36,
+    'DphiLep1MET'           :36,
+    'DphiLL'               :36,
     'm_coll_emu_SRnoJets'   :40,
     'm_coll_mue_SRnoJets'   :40,
     'm_coll_emu_SRJets'     :40,
@@ -290,7 +304,7 @@ selectionList = OrderedDict([ #default selection is True
     ('met_Op',Sel['OpSel']),
     ('met_SRwJ',Sel['SRwJets']),
     ('met_SRnoJ',Sel['SRnoJets']),
-    ('l0_pt_emu',Sel['emu']), #add selection on l1 for m_coll
+    ('l0_pt_emu',Sel['emu']), #add selection on l1 for MCollASym
     ('l0_pt_mue',Sel['mue']),
     ('l0_pt_ee',Sel['ee']),
     ('l0_pt_mumu',Sel['mumu']),
@@ -298,7 +312,7 @@ selectionList = OrderedDict([ #default selection is True
     ('l1_pt_mue',Sel['mue']),
     ('l1_pt_ee',Sel['ee']),
     ('l1_pt_mumu',Sel['mumu']),
-    #('m_coll',Sel['SymSel']),
+    #('MCollASym',Sel['SymSel']),
     ('m_coll_emu_SRnoJets',Sel['SRnoJets']+'&&'+Sel['emu']),
     ('m_coll_mue_SRnoJets',Sel['SRnoJets']+'&&'+Sel['mue']),
     ('m_coll_emu_SRJets',Sel['SRwJets']+'&&'+Sel['emu']),
@@ -307,15 +321,15 @@ selectionList = OrderedDict([ #default selection is True
     ('SRnJets',Sel['SRnoJets']),
     ('m_coll_emu_SymSel',Sel['SymSel']+'&&'+Sel['emu']),
     ('m_coll_mue_SymSel',Sel['SymSel']+'&&'+Sel['mue']),
-    ('mll_ee',Sel['ee']),
-    ('mll_mumu',Sel['mumu']),
-    ('mll_emu',Sel['emu']),
-    ('mll_mue',Sel['mue']),
-    ('mll_DF','('+Sel['emu']+'||'+Sel['mue']+')'),
-    ('mll_SF', '('+Sel['ee']+'||'+Sel['mumu']+')'),
-    ('dphi_l0_met',Sel['SymSel']),
-    ('dphi_l1_met',Sel['SymSel']),
-    ('dphi_ll',Sel['SymSel']),
+    ('MLL_ee',Sel['ee']),
+    ('MLL_mumu',Sel['mumu']),
+    ('MLL_emu',Sel['emu']),
+    ('MLL_mue',Sel['mue']),
+    ('MLL_DF','('+Sel['emu']+'||'+Sel['mue']+')'),
+    ('MLL_SF', '('+Sel['ee']+'||'+Sel['mumu']+')'),
+    ('DphiLep0MET',Sel['SymSel']),
+    ('DphiLep1MET',Sel['SymSel']),
+    ('DphiLL',Sel['SymSel']),
     ('l_pt_Wjets_e', 'nSignalLeptons>=1 && l_flav[0]==0 && l_pt[0]>=30'),
     ('l_pt_Wjets_mu','nSignalLeptons>=1 && l_flav[0]==1 && l_pt[0]>=30'),
     ('j_pt[0]','1'),
@@ -326,7 +340,7 @@ selectionList = OrderedDict([ #default selection is True
     ('j_pt[1]_Best', Sel['jets_Best']),
     ('j_pt[2]_Best', Sel['jets_Best']),
     ('j_pt[3]_Best', Sel['jets_Best']),
-    ('l_pt[0]',Sel['SymSel'])
+    #('l_pt[0]',Sel['SymSel'])
     ])
 for pT in [20,30,40,50,60]:
     selectionList['SRJets_CLge%d'%pT] = Sel['SRwJnoJReq'] \
@@ -342,46 +356,47 @@ variableList = OrderedDict([#default variable name is input variable
     ('met_Op','met'),
     ('met_SRwJ','met'),
     ('met_SRnoJ','met'),
-    ('m_coll_emu_SRnoJets','m_coll'),
-    ('m_coll_mue_SRnoJets','m_coll'),
-    ('m_coll_emu_SRJets','m_coll'),
-    ('m_coll_mue_SRJets','m_coll'),
-    ('m_coll_emu_SymSel','m_coll'),
-    ('m_coll_mue_SymSel','m_coll'),
-    ('SRJets'    ,'m_coll'),
-    ('SRnJets'    ,'m_coll'),
-    ('SRJets_CLge20'    ,'m_coll'),
-    ('SRJets_CLge30'    ,'m_coll'),
-    ('SRJets_CLge40'    ,'m_coll'),
-    ('SRJets_CLge50'    ,'m_coll'),
-    ('SRJets_CLge60'    ,'m_coll'),
-    ('SRnJets_CLge20'   ,'m_coll'),
-    ('SRnJets_CLge30'   ,'m_coll'),
-    ('SRnJets_CLge40'   ,'m_coll'),
-    ('SRnJets_CLge50'   ,'m_coll'),
-    ('SRnJets_CLge60'   ,'m_coll'),
-    ('SRJets_noLJetreq', 'm_coll'),
-    ('SRJets_noBJetreq', 'm_coll'),
-    ('SRJets_noJetreq',  'm_coll'),
-    ('SRJets_noJetreqLepreq', 'm_coll'),
-    ('SRnJets_noLJetreq','m_coll'),
-    ('SRnJets_noBJetreq','m_coll'),
-    ('SRnJets_noJetreq', 'm_coll'),
-    ('SRnJets_noJetreqLepreq', 'm_coll'),
-    ('SRnJets_l0Met', 'm_coll'),
-    ('SRnJets_l1Met', 'm_coll'),
-    ('SRnJets_l0l1',  'm_coll'),
-    ('SRnJets_dPtll', 'm_coll'),
-    ('SRnJets_noJetl0Met', 'm_coll'),
-    ('SRnJets_noJetl1Met', 'm_coll'),
-    ('SRnJets_noJetl0l1',  'm_coll'),
-    ('SRnJets_noJetdPtll', 'm_coll'),
-    ('mll_SF','mll'),
-    ('mll_ee','mll'),
-    ('mll_mumu','mll'),
-    ('mll_emu','mll'),
-    ('mll_mue','mll'),
-    ('mll_DF','mll'),
+    ('m_coll','MCollASym'),
+    ('m_coll_emu_SRnoJets','MCollASym'),
+    ('m_coll_mue_SRnoJets','MCollASym'),
+    ('m_coll_emu_SRJets','MCollASym'),
+    ('m_coll_mue_SRJets','MCollASym'),
+    ('m_coll_emu_SymSel','MCollASym'),
+    ('m_coll_mue_SymSel','MCollASym'),
+    ('SRJets'    ,'MCollASym'),
+    ('SRnJets'    ,'MCollASym'),
+    ('SRJets_CLge20'    ,'MCollASym'),
+    ('SRJets_CLge30'    ,'MCollASym'),
+    ('SRJets_CLge40'    ,'MCollASym'),
+    ('SRJets_CLge50'    ,'MCollASym'),
+    ('SRJets_CLge60'    ,'MCollASym'),
+    ('SRnJets_CLge20'   ,'MCollASym'),
+    ('SRnJets_CLge30'   ,'MCollASym'),
+    ('SRnJets_CLge40'   ,'MCollASym'),
+    ('SRnJets_CLge50'   ,'MCollASym'),
+    ('SRnJets_CLge60'   ,'MCollASym'),
+    ('SRJets_noLJetreq', 'MCollASym'),
+    ('SRJets_noBJetreq', 'MCollASym'),
+    ('SRJets_noJetreq',  'MCollASym'),
+    ('SRJets_noJetreqLepreq', 'MCollASym'),
+    ('SRnJets_noLJetreq','MCollASym'),
+    ('SRnJets_noBJetreq','MCollASym'),
+    ('SRnJets_noJetreq', 'MCollASym'),
+    ('SRnJets_noJetreqLepreq', 'MCollASym'),
+    ('SRnJets_l0Met', 'MCollASym'),
+    ('SRnJets_l1Met', 'MCollASym'),
+    ('SRnJets_l0l1',  'MCollASym'),
+    ('SRnJets_dPtll', 'MCollASym'),
+    ('SRnJets_noJetl0Met', 'MCollASym'),
+    ('SRnJets_noJetl1Met', 'MCollASym'),
+    ('SRnJets_noJetl0l1',  'MCollASym'),
+    ('SRnJets_noJetdPtll', 'MCollASym'),
+    ('MLL_SF','MLL'),
+    ('MLL_ee','MLL'),
+    ('MLL_mumu','MLL'),
+    ('MLL_emu','MLL'),
+    ('MLL_mue','MLL'),
+    ('MLL_DF','MLL'),
     ('l_pt_Wjets_e' ,'l_pt[0]'),
     ('l_pt_Wjets_mu','l_pt[0]'),
     ('j_pt[0]_Jge20','j_pt[0]'),

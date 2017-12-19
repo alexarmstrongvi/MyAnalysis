@@ -8,7 +8,7 @@ ana_type   = "LFV"
 use_local = False
 susyNtType = "n0235"
 userName = "armstro1"
-ana_name            = "makeMiniNtuple_LFV"
+ana_name            = "makeMiniNtuple_HIGGS"
 tar_location        = "/data/uclhc/uci/user/%s/SusyNt/"%(userName)
 if use_local:
     filelist_dir        = "/data/uclhc/uci/user/%s/SusyNt/analysis_%s/LOCAL_inputs_LFV/"%(userName,susyNtType)

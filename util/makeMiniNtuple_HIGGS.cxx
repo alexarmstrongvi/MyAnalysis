@@ -217,9 +217,9 @@ int main(int argc, char* argv[])
       return (sl->tools->passJetCleaning(sl->baseJets));
   };
    
-  *cutflow << CutName("exactly two baseline leptons") << [](Superlink* sl) -> bool {
-      return (sl->baseLeptons->size() == 2);
-  };
+  //*cutflow << CutName("exactly two baseline leptons") << [](Superlink* sl) -> bool {
+  //    return (sl->baseLeptons->size() == 2);
+  //};
 
   *cutflow << CutName("exactly two signal leptons") << [](Superlink* sl) -> bool {
       return (sl->leptons->size() == 2);
@@ -441,10 +441,12 @@ int main(int argc, char* argv[])
 
   // Accesing objects through superlink and assigning them to internal variables 
   LeptonVector baseLeptons, signalLeptons;
+  ElectronVector signalElectrons;
   Susy::Met met;
   *cutflow << [&](Superlink* sl, var_void*) { 
     baseLeptons   = *sl->baseLeptons; 
     signalLeptons = *sl->leptons; 
+    signalElectrons = *sl->electrons;
     met = *sl->met;
   };
 
@@ -481,6 +483,30 @@ int main(int argc, char* argv[])
         out.push_back(lepton->Pt());
       }
       return out;
+    };
+    *cutflow << SaveVar();
+  }
+
+  *cutflow << NewVar("leading electron track pt"); {
+    *cutflow << HFTname("el0_track_pt");
+    *cutflow << [&](Superlink* /*sl*/, var_float*) -> double {
+            if (signalElectrons.size() > 0) {
+                return signalElectrons.at(0)->trackPt;
+            } else {
+                return 0;
+            }
+    };
+    *cutflow << SaveVar();
+  }
+
+  *cutflow << NewVar("leading electron clus pt"); {
+    *cutflow << HFTname("el0_clus_pt");
+    *cutflow << [&](Superlink* /*sl*/, var_float*) -> double {
+            if (signalElectrons.size() > 0) {
+                return signalElectrons.at(0)->clusE;
+            } else {
+                return 0;
+            }
     };
     *cutflow << SaveVar();
   }
@@ -637,13 +663,13 @@ int main(int argc, char* argv[])
   *cutflow << NewVar("Delta eta between leptons"); {
     *cutflow << HFTname("DEtaLL");
     *cutflow << [&](Superlink* /*sl*/, var_float*) -> double { 
-       return lepton0.Eta() - lepton1.Eta(); };
+       return fabs(lepton0.Eta() - lepton1.Eta()); };
     *cutflow << SaveVar();
   }
   *cutflow << NewVar("Delta phi between leptons"); {
     *cutflow << HFTname("DphiLL");
     *cutflow << [&](Superlink* /*sl*/, var_float*) -> double { 
-       return lepton0.DeltaPhi(lepton1);};
+       return fabs(lepton0.DeltaPhi(lepton1));};
     *cutflow << SaveVar();
   }
 
@@ -749,10 +775,19 @@ int main(int argc, char* argv[])
 
 // Jet Variables
    JetVector baseJets, signalJets, centralLightJets, centralBJets, forwardJets;
+   TLorentzVector JetP4, Jet1, Jet0;
 
    *cutflow << [&](Superlink* sl, var_void*) {
      baseJets = *sl->baseJets;
      signalJets = *sl->jets;
+
+     if (baseJets.size() > 0) {
+         Jet0 = *baseJets.at(0);
+         if (baseJets.size() > 1) {
+            Jet1 = *baseJets.at(1);
+            JetP4 = Jet0 + Jet1;
+         }
+     }
      for(auto& jet : baseJets) {
            if(sl->tools->m_jetSelector->isCentralLight(jet))  {
                 centralLightJets.push_back(jet);
@@ -793,6 +828,18 @@ int main(int argc, char* argv[])
     *cutflow << SaveVar();
   }
 
+  *cutflow << NewVar("number of jets pT > 30"); {
+    *cutflow << HFTname("JetN_g30");
+    *cutflow << [&](Superlink* /*sl*/, var_int*) -> int { 
+        uint nJets = 0;
+        for (auto& jet : baseJets) {
+            if (jet->Pt() > 30) nJets++;
+        }
+        return nJets; 
+    };
+    *cutflow << SaveVar();
+  }
+
   *cutflow << NewVar("number of central light jets"); {
     *cutflow << HFTname("nCentralLJets");
     *cutflow << [](Superlink* sl, var_int*) -> int { return sl->tools->numberOfCLJets(*sl->baseJets)/*(*baseJets)*/; };
@@ -825,6 +872,30 @@ int main(int argc, char* argv[])
         out.push_back(jet->Pt());
       }
       return out;
+    };
+    *cutflow << SaveVar();
+  }
+
+  *cutflow << NewVar("dijet mass"); {
+    *cutflow << HFTname("Mjj");
+    *cutflow << [&](Superlink* /*sl*/, var_float*) -> double { 
+        if (baseJets.size() > 1) {
+            return JetP4.M();
+        } else {
+            return -1.0;
+        }
+    };
+    *cutflow << SaveVar();
+  }
+
+  *cutflow << NewVar("DeltaEta between two leading jets"); {
+    *cutflow << HFTname("DEtaJJ");
+    *cutflow << [&](Superlink* /*sl*/, var_float*) -> double { 
+        if (baseJets.size() > 1) {
+            return fabs(Jet0.Eta() - Jet1.Eta());
+        } else {
+            return -1.0;
+        }
     };
     *cutflow << SaveVar();
   }
