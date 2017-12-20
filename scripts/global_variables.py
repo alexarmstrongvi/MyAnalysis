@@ -1,5 +1,5 @@
 #!/bin/bash/env python
-from collections import OrderedDict, namedtuple, defaultDict
+from collections import OrderedDict, namedtuple, defaultdict
 import ROOT
 
 
@@ -64,14 +64,14 @@ Sel = {
     ''             : '1',
     'dilep_trig': '(%s || %s)'%(dilep15_trig, dilep16_trig),
     'singlelep_trig': '(%s || %s)'%(singlelep15_trig,singlelep16_trig),
-    'Baseline'  : 'l_pt[0] >= 45 && l_pt[1] >= 15'
-                   + '&& 30 < MLL && MLL < 150'
-                   + '&& nCentralBJets==0'
-                   + '&& (dilep_flav != 0 || (el0_track_pt/el0_clus_pt) < 1.2)'
+    'Baseline'  : 'l_pt[0] >= 45 && l_pt[1] >= 15 '
+                   + '&& 30 < MLL && MLL < 150 '
+                   + '&& nCentralBJets==0 '
+                   + '&& (dilep_flav != 0 || (el0_track_pt/el0_clus_pt) < 1.2) '
                    + '&& ' + DF_OS,
-    'VBF'       : 'JetN_g30 >= 2'
-                  + '&& j_pt[0] > 40'
-                  + '&& Mjj > 400'
+    'VBF'       : 'JetN_g30 >= 2 '
+                  + '&& j_pt[0] > 40 '
+                  + '&& Mjj > 400 '
                   + '&& DEtaJJ > 3',
     'emu'       : 'dilep_flav == 0',
     'mue'       : 'dilep_flav == 1',
@@ -154,37 +154,37 @@ HistOpMap = {
     'j_jvf'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='',    xLabel='Jet JVF',                           yLabel='Events'),
     'j_phi'           : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='Jet #phi',                          yLabel='Events'),
     'j_flav'          : HistOp1D(nBinsX=5,  x0=-0.5, x1=4.5,   xUnits='',    xLabel='Jet flavor (0:NA,1:CL,2:CB,3:F)',   yLabel='Events'),
-    'pass_HLT_mu18_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu18 mu8noL1 trigger bit',                 ylabel='Events'),
-    'pass_HLT_2e12_lhloose_L12EM10VH'       : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e12 lhloose L12EM10VH trigger bit',       ylabel='Events'),
-    'pass_HLT_e17_lhloose_mu14'             : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e17 lhloose mu14 trigger bit',             ylabel='Events'),
-    'pass_HLT_mu20_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu20 mu8noL1 trigger bit',                 ylabel='Events'),
-    'pass_HLT_2e15_lhvloose_L12EM13VH'      : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e15 lhvloose L12EM13VH trigger bit',      ylabel='Events'),
-    'pass_HLT_2e17_lhvloose_nod0'           : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e17 lhvloose nod0 trigger bit',           ylabel='Events'),
-    'pass_HLT_mu22_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu22 mu8noL1 trigger bit',                 ylabel='Events'),
-    'pass_HLT_e17_lhloose_nod0_mu14'        : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e17 lhloose nod0 mu14 trigger bit',        ylabel='Events'),
-    'pass_HLT_e60_lhmedium'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e60 lhmedium trigger bit',                 ylabel='Events'),
-    'pass_HLT_e24_lhmedium_L1EM20VH'        : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e24 lhmedium L1EM20VH trigger bit',        ylabel='Events'),
-    'pass_HLT_e24_lhmedium_iloose_L1EM18VH' : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e24 lhmedium iloose L1EM18VH trigger bit', ylabel='Events'),
-    'pass_HLT_mu20_iloose_L1MU15'           : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu20 iloose L1MU15 trigger bit',           ylabel='Events'),
-    'pass_HLT_mu24_imedium'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 imedium trigger bit',                 ylabel='Events'),
-    'pass_HLT_mu26_imedium'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu26 imedium trigger bit',                 ylabel='Events'),
-    'pass_HLT_e24_lhtight_nod0_ivarloose'   : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e24 lhtight nod0 ivarloose trigger bit',   ylabel='Events'),
-    'pass_HLT_e26_lhtight_nod0_ivarloose'   : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e26 lhtight nod0 ivarloose trigger bit',   ylabel='Events'),
-    'pass_HLT_e60_lhmedium_nod0'            : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e60 lhmedium nod0 trigger bit',            ylabel='Events'),
-    'pass_HLT_e120_lhloose'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e120 lhloose trigger bit',                 ylabel='Events'),
-    'pass_HLT_e140_lhloose_nod0'            : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e140 lhloose nod0 trigger bit',            ylabel='Events'),
-    'pass_HLT_mu24_iloose'                  : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 iloose trigger bit',                  ylabel='Events'),
-    'pass_HLT_mu24_iloose_L1MU15'           : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 iloose L1MU15 trigger bit',           ylabel='Events'),
-    'pass_HLT_mu24_ivarloose'               : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 ivarloose trigger bit',               ylabel='Events'),
-    'pass_HLT_mu24_ivarloose_L1MU15'        : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 ivarloose L1MU15 trigger bit',        ylabel='Events'),
-    'pass_HLT_mu24_ivarmedium'              : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 ivarmedium trigger bit',              ylabel='Events'),
-    'pass_HLT_mu26_ivarmedium'              : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu26 ivarmedium trigger bit',              ylabel='Events'),
-    'pass_HLT_mu50'                         : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu50 trigger bit',                         ylabel='Events')
+    'pass_HLT_mu18_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu18 mu8noL1 trigger bit',                 yLabel='Events'),
+    'pass_HLT_2e12_lhloose_L12EM10VH'       : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e12 lhloose L12EM10VH trigger bit',       yLabel='Events'),
+    'pass_HLT_e17_lhloose_mu14'             : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e17 lhloose mu14 trigger bit',             yLabel='Events'),
+    'pass_HLT_mu20_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu20 mu8noL1 trigger bit',                 yLabel='Events'),
+    'pass_HLT_2e15_lhvloose_L12EM13VH'      : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e15 lhvloose L12EM13VH trigger bit',      yLabel='Events'),
+    'pass_HLT_2e17_lhvloose_nod0'           : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e17 lhvloose nod0 trigger bit',           yLabel='Events'),
+    'pass_HLT_mu22_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu22 mu8noL1 trigger bit',                 yLabel='Events'),
+    'pass_HLT_e17_lhloose_nod0_mu14'        : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e17 lhloose nod0 mu14 trigger bit',        yLabel='Events'),
+    'pass_HLT_e60_lhmedium'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e60 lhmedium trigger bit',                 yLabel='Events'),
+    'pass_HLT_e24_lhmedium_L1EM20VH'        : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e24 lhmedium L1EM20VH trigger bit',        yLabel='Events'),
+    'pass_HLT_e24_lhmedium_iloose_L1EM18VH' : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e24 lhmedium iloose L1EM18VH trigger bit', yLabel='Events'),
+    'pass_HLT_mu20_iloose_L1MU15'           : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu20 iloose L1MU15 trigger bit',           yLabel='Events'),
+    'pass_HLT_mu24_imedium'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 imedium trigger bit',                 yLabel='Events'),
+    'pass_HLT_mu26_imedium'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu26 imedium trigger bit',                 yLabel='Events'),
+    'pass_HLT_e24_lhtight_nod0_ivarloose'   : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e24 lhtight nod0 ivarloose trigger bit',   yLabel='Events'),
+    'pass_HLT_e26_lhtight_nod0_ivarloose'   : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e26 lhtight nod0 ivarloose trigger bit',   yLabel='Events'),
+    'pass_HLT_e60_lhmedium_nod0'            : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e60 lhmedium nod0 trigger bit',            yLabel='Events'),
+    'pass_HLT_e120_lhloose'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e120 lhloose trigger bit',                 yLabel='Events'),
+    'pass_HLT_e140_lhloose_nod0'            : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='e140 lhloose nod0 trigger bit',            yLabel='Events'),
+    'pass_HLT_mu24_iloose'                  : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 iloose trigger bit',                  yLabel='Events'),
+    'pass_HLT_mu24_iloose_L1MU15'           : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 iloose L1MU15 trigger bit',           yLabel='Events'),
+    'pass_HLT_mu24_ivarloose'               : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 ivarloose trigger bit',               yLabel='Events'),
+    'pass_HLT_mu24_ivarloose_L1MU15'        : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 ivarloose L1MU15 trigger bit',        yLabel='Events'),
+    'pass_HLT_mu24_ivarmedium'              : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu24 ivarmedium trigger bit',              yLabel='Events'),
+    'pass_HLT_mu26_ivarmedium'              : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu26 ivarmedium trigger bit',              yLabel='Events'),
+    'pass_HLT_mu50'                         : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu50 trigger bit',                         yLabel='Events')
 }
 
 
 # Set ATLAS style
-def setATLASStyle(path="/home/amete/ATLASStyle/current/"):
+def setATLASStyle(path="/data/uclhc/uci/user/armstro1/ATLASStyle/"):
     ROOT.gROOT.SetMacroPath(path)
     ROOT.gROOT.LoadMacro("AtlasStyle.C")
     ROOT.gROOT.LoadMacro("AtlasLabels.C")

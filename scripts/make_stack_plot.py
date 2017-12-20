@@ -15,23 +15,35 @@ def main():
                       help='Input .root file with different samples')
     parser.add_argument('variable',
                       help='csv list of samples for the yield table')
-    parser.add_argument('-r', '--regions',\
+    parser.add_argument('-r', '--region',\
                       default='',\
-                      help='csv list of regions for the yield table')
-    parser.add_argument('-c', '--channels',\
+                      help='region choice from global_variables')
+    parser.add_argument('-c', '--channel',\
                       default='',\
-                      help='csv list of channels for the yield table')
+                      help='channel choice (ee,emu,mue,mumu)')
+    parser.add_argument('--verbose',\
+                      type=bool, default=False,\
+                      help='Run with additional printouts')
     args = parser.parse_args()
 
     ifile_name = args.file
     variable = args.variable
-    region_list   = [x.strip() for x in args.regions.split(",")]
-    channel_list  = [x.strip() for x in args.channels.split(",")]
+    region   = args.region
+    channel  = args.channel
+    verbose  = args.verbose
+
+    print "\nRunning make_stack_plots..."
+    print "Region: %s, Channel: %s, Variable: %s"%(region,channel,variable)
 
     # Open up the ROOT file
-    inputFile = ROOT.TFile(G.analysis_run_dir+ifile_name,'READ')
+    file_path = G.analysis_run_dir+ifile_name
+    if not os.path.exists(file_path):
+        print "ERROR :: %s does not exist"%file_path
+        sys.exit()
+    inputFile = ROOT.TFile(file_path,'READ')
     if not inputFile or inputFile.IsZombie():
-        print "Problem opening file ", inputFile
+        print "ERROR :: Problem opening file ", file_path
+        sys.exit()
     # Run in batch mode
     ROOT.gROOT.SetBatch(True)
 
@@ -49,25 +61,24 @@ def main():
 
     # Define the lists for samples, colors, and histogram properties
     sampleList = OrderedDict([
-        ('HWW', 0.),
         ('Wjets', 0.),
         ('Diboson', 0.),
+        ('HWW', 0.),
         ('Top', 0.),
-        ('Ztt_ZttEW', 0.),
         ('Zll_ZEW', 0.),
+        ('Ztt_ZttEW', 0.),
         (data_sample, 0.),
         (signal_sample, 0.)
         ])
 
     colorList  = {
         data_sample : ROOT.kBlack ,
-        'Wjets'     : ROOT.kBlue ,
-        'HWW'       : ROOT.kYellow-9,
-        'Top'       : ROOT.kRed+2 ,
-        'Diboson'   : ROOT.kAzure+3 ,
-        'Ztt_ZttEW' : ROOT.kOrange+2,
-        'Ztt_check' : ROOT.kOrange+2,
-        'Zll_ZEW'   : ROOT.kOrange-2,
+        'Wjets'     : ROOT.kOrange,
+        'HWW'       : ROOT.kBlue+3,
+        'Top'       : ROOT.kOrange+2 ,
+        'Diboson'   : ROOT.kSpring-6,
+        'Ztt_ZttEW' : ROOT.kAzure-5,
+        'Zll_ZEW'   : ROOT.kAzure-9,
         signal_sample : ROOT.kGreen }
 
     legendLabel  = {
@@ -75,20 +86,19 @@ def main():
         'Wjets'     : 'W+jets' ,
         'HWW'       : 'HWW',
         'Top'       : 'Top',
-        'Diboson'   : 'Diboson',
-        'Ztt_ZttEW' : 'Ztt_ZttEW',
-        'Ztt_check' : 'Ztautau',
-        'Zll_ZEW'   : 'Zll_ZEW',
+        'Diboson'   : 'Di-Boson',
+        'Ztt_ZttEW' : 'Z#rightarrow#tau#tau',
+        'Zll_ZEW'   : 'Z#rightarrowll',
         signal_sample : 'H#rightarrow#taul (344084-91)' }
 
-    stack = ROOT.THStack('mcStack','Standard Model')
     # Set the legend
-    legend=ROOT.TLegend(0.7,0.6,0.9,0.9)
+    legend=ROOT.TLegend(0.5,0.75,0.9,0.9)
     legend.SetBorderSize(0)
     legend.SetFillColor(0)
+    legend.SetNColumns(2)
 
     # Read everything from the file
-    print '='*50
+    if verbose: print '='*50
 
     #Set Defaults
     if variable not in G.HistOpMap:
@@ -96,143 +106,160 @@ def main():
 
     # Make Plots
     opt = G.HistOpMap[variable]
+
+
+    stack = ROOT.THStack('mcStack','Standard Model')
+    totalSM = ROOT.TH1D('totalSM', 'totalSM', opt.nBinsX, opt.x0, opt.x1)
+    totalSM.Sumw2()
+    for sample in sampleList:
+        sel = '(%s && %s && %s)'%(
+            G.Sel[region],G.Sel[channel],G.trigger_selection)
+
+        ttree = inputFile.Get(sample)
+        if not ttree:
+            print "%s not found in %s"%(sample,ifile_name) 
+        # Set/Create Event List
+        list_name = 'list_%s_%s_%s_%s'%(
+                sample,region,channel,G.trigger_sel_name)
+        save_name = G.analysis_run_dir + 'lists/' + list_name + '.root'
+        if os.path.isfile(save_name):
+            rfile = ROOT.TFile.Open(save_name)
+            elist = rfile.Get(list_name)
+            ttree.SetEventList(elist)
+        else:
+            draw_list = '>> ' + list_name
+            ttree.Draw(draw_list, ROOT.TCut(sel))
+            elist = ROOT.gROOT.FindObject(list_name)
+            ttree.SetEventList(elist)
+            elist.SaveAs(save_name)
+
+        # Initizlize Histogram
+        hname = 'hist_%s'%(sample)
+        htemp = ROOT.TH1D(hname,hname, opt.nBinsX, opt.x0, opt.x1)
+        htemp.Sumw2() # So that we get the correct errors after normalization
+        draw_str = '%s>>%s'%(variable,hname)
+
+        if data_sample in sample:
+            if blind_sig and 'm_coll' in variable:
+                sel += '&& (m_coll<%d || %d<m_coll)'%(
+                    mass_window[0],mass_window[1])
+            ttree.Draw(draw_str,sel,'goff')
+            sampleList[sample] = copy.copy(htemp)
+            sampleList[sample].SetMarkerColor(ROOT.kBlack)
+            sampleList[sample].SetMarkerSize(1)
+            sampleList[sample].SetMinimum(0.1)
+            if variable in G.histMaxY:
+                sampleList[sample].SetMaximum(G.histMaxY[variable])
+            # Fill the legend
+            legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
+        elif signal_sample in sample:
+            sel += '*%s*%s*eventweight'%(G.luminosity, G.BR)
+
+            ttree.Draw(draw_str,sel,'goff')
+            sampleList[sample] = copy.copy(htemp)
+            sampleList[sample].SetLineWidth(2)
+            sampleList[sample].SetLineColor(colorList[sample])
+            # Fill the legend
+            legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
+        else:
+            sel += '*%s*eventweight'%(G.luminosity);
+            ttree.Draw(draw_str,sel,'goff')
+            sampleList[sample] = copy.copy(htemp)
+            htemp.SetDirectory(ROOT.NULL)
+            sampleList[sample].SetDirectory(0)
+            sampleList[sample].SetLineWidth(2)
+            sampleList[sample].SetLineColor(ROOT.kBlack)
+            sampleList[sample].SetFillColor(colorList[sample])
+            stack.Add(sampleList[sample]) # Add to stack
+            totalSM.Add(sampleList[sample]) # Add to totalSM
+            # Fill the legend
+            legend.AddEntry(sampleList[sample],legendLabel[sample],'f')
+
+        error    = ROOT.Double(0.)
+        integral = sampleList[sample].IntegralAndError(0,-1,error)
+        print "%*s = %*.2f +/- %*.2f"%(15,sample,10,integral,10,error)
+        htemp.Clear()
+
+    # Determine Significance
+    bkgd_err = ROOT.Double(0.)
+    lw_bnd = totalSM.FindBin(mass_window[0])
+    up_bnd = totalSM.FindBin(mass_window[1])
+    bkgd_int  = totalSM.IntegralAndError(lw_bnd, up_bnd, bkgd_err)
+
+    if verbose:
+        print "Background Integral in mass window = ", bkgd_int
+        if bkgd_int > 0:
+            bkgd_err_frac = bkgd_err/bkgd_int
+            sig_int = sampleList[signal_sample].Integral(lw_bnd, up_bnd)
+            ZbinSig = BinZ(sig_int,bkgd_int, bkgd_err_frac)
+            print "Signal Significance (BinExpZ) = ", ZbinSig
+        print '='*50
+
+    # Draw
+    canvas = ROOT.TCanvas('canvas','canvas',500,500)
+    canvas.SetFillColor(0)
+    topPad = ROOT.TPad('pTop','pTop',0,0.2,1,1)
+    topPad.SetBottomMargin(0.15)
+    topPad.Draw()
+    botPad = ROOT.TPad('pBot','pBot',0,0.0,1,0.3)
+    botPad.Draw()
+    botPad.SetBottomMargin(0.30)
+
+    # Top Pad #
+    topPad.cd()
     # Build axis label
-    axis_label = opt.xLabel
+    xlabel = opt.xLabel
     if opt.xUnits:
-        axis_label = '%s [%s]'%(axis_label,opt.xUnits)
-    axis_label = "%s; %s"%(axis_label, opt.yLabel)
+        xlabel += ' [%s]'%opt.xUnits
+    ylabel = opt.yLabel
     if opt.x1 > opt.x0:
         bin_size = (opt.x1 - opt.x0)/float(opt.nBinsX)
-        axis_label = "%s/%.2f"%(axis_label, bin_size)
-    if opt.yUnits:
-        axis_label = '%s [%s]'%(axis_label,opt.yUnits)
-    for region in region_list:
-        for channel in channel_list:
-            cut = ROOT.TCut('(%s) && (%s) && (%s)'%(
-                G.Sel[region],G.Sel[channel],G.trigger_selection))
-            totalSM = ROOT.TH1D('totalSM', 'totalSM; %s'%axis_label, opt.nBinsX, opt.x0, opt.x1)
-            totalSM.Sumw2()
-            for sample in sampleList:
-                sel = cut
-                ttree = inputFile.Get(sample)
+        ylabel += "/%.2f"%bin_size
+        if opt.xUnits:
+            ylabel += opt.xUnits
+    # Get max y
+    mc_max = totalSM.GetMaximum()
+    data_max = sampleList[data_sample].GetMaximum()
+    if mc_max > data_max:
+        max = mc_max
+    else:
+        max = data_max
+    sampleList[data_sample].Draw('p')
+    sampleList[data_sample].GetXaxis().SetLabelOffset(10)
+    sampleList[data_sample].GetYaxis().SetTitle(ylabel)
+    sampleList[data_sample].SetMaximum(1.5*max) 
+    stack.Draw('same && hists')
+    sampleList[data_sample].Draw('p && same')
+    sampleList[signal_sample].Draw('HIST && SAME')
+    legend.Draw()
+    #ROOT.gPad.SetLogy(True)
+    ROOT.gPad.RedrawAxis()
 
-                # Set/Create Event List
-                list_name = 'list_%s_%s'%(sample, G.trigger_sel_name)
-                save_name = G.analysis_run_dir + 'lists/' + list_name + '.root'
-                if os.path.isfile(save_name):
-                    rfile = ROOT.TFile.Open(save_name)
-                    elist = rfile.Get(list_name)
-                    ttree.SetEventList(elist)
-                else:
-                    draw_list = '>> ' + list_name
-                    ttree.Draw(draw_list, cut)
-                    elist = ROOT.gROOT.FindObject(list_name)
-                    ttree.SetEventList(elist)
-                    elist.SaveAs(save_name)
+    # Bottom Pad
+    botPad.cd()
+    dummyHisto  = G.dummifyHistogram(sampleList[data_sample].Clone())
+    dummyHisto.GetXaxis().SetTitle(xlabel)
+    # Get the actual Ratio
+    numerator   = ROOT.TH1TOTGraph(sampleList[data_sample])
+    denominator = ROOT.TH1TOTGraph(totalSM)
+    ratio       = ROOT.myTGraphErrorsDivide(numerator,denominator)
+    # Add Error Bars
+    inputError  = ROOT.TGraphAsymmErrors(totalSM)
+    outputError = ROOT.TGraphAsymmErrors(inputError)
+    buildRatioErrorBand(inputError,outputError)
 
-                # Initizlize Histogram
-                hname = 'hist_%s'%(sample)
-                htemp = ROOT.TH1D(hname,hname,opt.nBinsX, opt.x0, opt.x1) # 25 bins from 0 to 500
-                htemp.Sumw2() # So that we get the correct errors after normalization
-                draw_str = '%s>>%s'%(variable,hname)
+    # Draw
+    dummyHisto.Draw("p")
+    outputError.Draw("same && E2")
+    ratio.Draw("same && p && 0 && 1")
+    ROOT.gPad.SetGridy(1)
 
-                if data_sample in sample:
-                    if blind_sig and 'm_coll' in variable:
-                        sel += '&& (m_coll<%d || %d<m_coll)'%(mass_window[0],mass_window[1])
-                    ttree.Draw(draw_str,sel,'goff')
-                    sampleList[sample] = copy.copy(htemp)
-                    sampleList[sample].SetMarkerColor(ROOT.kBlack)
-                    sampleList[sample].SetMarkerSize(1)
-                    sampleList[sample].SetMinimum(0.1)
-                    if variable in G.histMaxY:
-                        sampleList[sample].SetMaximum(G.histMaxY[variable])
-                    # Fill the legend
-                    legend.AddEntry(sampleList[sample],legendLabel[sample],'p')
-                elif signal_sample in sample:
-                    sel += '*%s*%s*eventweight'%(G.luminosity, G.BR)
-                    ttree.Draw(draw_str,sel,'goff')
-                    sampleList[sample] = copy.copy(htemp)
-                    sampleList[sample].SetLineWidth(2)
-                    sampleList[sample].SetLineColor(colorList[sample])
-                    # Fill the legend
-                    legend.AddEntry(sampleList[sample],legendLabel[sample],'l')
-                else:
-                    sel += '*%s*eventweight'%(G.luminosity)
-                    ttree.Draw(draw_str,sel,'goff')
-                    sampleList[sample] = copy.copy(htemp)
-                    htemp.SetDirectory(ROOT.NULL)
-                    sampleList[sample].SetDirectory(0)
-                    sampleList[sample].SetLineWidth(2)
-                    sampleList[sample].SetLineColor(ROOT.kBlack)
-                    sampleList[sample].SetFillColor(colorList[sample])
-                    stack.Add(sampleList[sample]) # Add to stack
-                    totalSM.Add(sampleList[sample]) # Add to totalSM
-                    # Fill the legend
-                    legend.AddEntry(sampleList[sample],legendLabel[sample],'f')
-                error    = ROOT.Double(0.)
-                integral = sampleList[sample].IntegralAndError(0,-1,error)
-                print "%*s = %*.2f +/- %*.2f"%(15,sample,10,integral,10,error)
-                write_str = '%*.2f\t%*.2f\t'%(10,integral,10,error)
-                htemp.Clear()
-
-            # Determine Significance
-            bkgd_err = ROOT.Double(0.)
-            lw_bnd = totalSM.FindBin(mass_window[0])
-            up_bnd = totalSM.FindBin(mass_window[1])
-            bkgd_int  = totalSM.IntegralAndError(lw_bnd, up_bnd, bkgd_err)
-
-            print "Background Integral in mass window = ", bkgd_int
-            if bkgd_int > 0:
-                bkgd_err_frac = bkgd_err/bkgd_int
-                sig_int = sampleList[signal_sample].Integral(lw_bnd, up_bnd)
-                ZbinSig = BinZ(sig_int,bkgd_int, bkgd_err_frac)
-                print "Signal Significance (BinExpZ) = ", ZbinSig
-            print '='*50
-
-            # Draw
-            canvas = ROOT.TCanvas('canvas','canvas',500,500)
-            canvas.SetFillColor(0)
-            topPad = ROOT.TPad('pTop','pTop',0,0.2,1,1)
-            topPad.SetBottomMargin(0.15)
-            topPad.Draw()
-            botPad = ROOT.TPad('pBot','pBot',0,0.0,1,0.3)
-            botPad.Draw()
-            botPad.SetBottomMargin(0.30)
-
-            # Top Pad
-            topPad.cd()
-            sampleList[data_sample].Draw('p')
-            sampleList[data_sample].GetXaxis().SetLabelOffset(10)
-            sampleList[data_sample].GetYaxis().SetTitle('Events')
-            stack.Draw('same && hists')
-            sampleList[data_sample].Draw('p && same')
-            sampleList[signal_sample].Draw('HIST && SAME')
-            legend.Draw()
-            #ROOT.gPad.SetLogy(True)
-            ROOT.gPad.RedrawAxis()
-
-            # Bottom Pad
-            botPad.cd()
-            dummyHisto  = G.dummifyHistogram(sampleList[data_sample].Clone())
-            dummyHisto.GetXaxis().SetTitle(opt.xLabel)
-            # Get the actual Ratio
-            numerator   = ROOT.TH1TOTGraph(sampleList[data_sample])
-            denominator = ROOT.TH1TOTGraph(totalSM)
-            ratio       = ROOT.myTGraphErrorsDivide(numerator,denominator)
-            # Add Error Bars
-            inputError  = ROOT.TGraphAsymmErrors(totalSM)
-            outputError = ROOT.TGraphAsymmErrors(inputError)
-            buildRatioErrorBand(inputError,outputError)
-
-            # Draw
-            dummyHisto.Draw("p")
-            outputError.Draw("same && E2")
-            ratio.Draw("same && p && 0 && 1")
-            ROOT.gPad.SetGridy(1)
-
-            # Save
-            canvas.SaveAs('%s%s_%s_%s_%s.eps'%(
-                output_dir,plot_name_prefix,region,channel,variable))
+    # Save
+    canvas.SaveAs('%s%s%s_%s_%s.eps'%(
+        output_dir,plot_name_prefix,region,channel,variable))
+    #Clean Up
+    stack.Clear()
+    totalSM.Clear()
 
 def buildRatioErrorBand(inputGraph, outputGraph):
     outputGraph.SetMarkerSize(0);

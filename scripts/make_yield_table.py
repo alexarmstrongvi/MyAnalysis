@@ -61,7 +61,8 @@ def main():
                 ttree = ifile.Get(sample)
                 if not ttree:
                     print 'ERROR :: %s not found in %s'%(sample, ifile_name)
-                selection = '(%s && %s)'%(G.Sel[region], G.Sel[channel])
+                selection = '(%s && %s && %s)'%(
+                        G.Sel[region], G.Sel[channel], G.trigger_selection)
                 hist = ROOT.TH1D(hname, hname, 3, -0.5, 2.5)
 
                 # Get event yields
@@ -93,10 +94,11 @@ def main():
             ofile.write('%s,%s,MC_total,%f,%f\n'%(
                 region, channel, mc_total.value, mc_total.error))
             data_yield = float(yield_dict[data_sample_name].value)
-            yield_dict['MC_data_ratio'] = mc_total.value / data_yield
-            print "\t%*s = %.4f"%(15,'MC/Data',yield_dict['MC_data_ratio'])
-            ofile.write('MC/Data,%f\n'%yield_dict['MC_data_ratio'])
-            print "\n...Output written to", output_file_name
+            yield_dict['data_MC_ratio'] = data_yield / mc_total.value 
+            print "\t%*s = %.4f"%(15,'MC/Data',yield_dict['data_MC_ratio'])
+            ofile.write('%s,%s,Data/MC,%f\n'%(
+                region, channel, yield_dict['data_MC_ratio']))
+        print "\n...Output written to", output_file_name
     ofile.close()
 
 if __name__ == '__main__':
