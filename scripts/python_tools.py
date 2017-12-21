@@ -45,6 +45,116 @@ def strip_string_to_substring(string,substring):
     else: 
         return ''
 
+def get_unique_elements(list1, list2):
+    unique_list1 = []
+    for x in list1:
+        if x not in list2:
+            unique_list1.append(x)
+    unique_list2 = []
+    for x in list2:
+        if x not in list1:
+            unique_list2.append(x)
+    return unique_list1, unique_list2
+
+def get_shared_elements(list1, list2):
+    shared_list = []
+    for x in list1:
+        if x in list2:
+            shared_list.append(x)
+    return shared_list
+
+def get_dsid_from_sample(sample):
+    """ Extract DSID from sample name"""
+    sample = sample.strip()
+    search_str = '[0-9]{6}'
+    return strip_string_to_substring(sample,search_str)
+
+
+def get_dsid_sample_map(sample_list):
+    """ 
+    Get map of DSIDs to full sample name
+    given a list of full sample names
+    """
+    dsid_sample_map = {}
+    for sample in sample_list:
+        dsid = get_dsid_from_sample(sample)
+        if dsid in dsid_sample_map:
+            print 'WARNING :: DSID %d is duplicated'
+        elif len(dsid) == 6:
+            dsid_sample_map[dsid] = sample
+    return dsid_sample_map
+
+def trim_sample_name(sample):
+    dsid = get_dsid_from_sample(sample)
+    pos = sample.find(dsid)
+    sample = sample[pos:]
+    if sample.find(' ') != -1:
+        return sample
+    sample = sample.split('.')[:-1]
+    sample = '.'.join(sample)
+    return sample 
+
+def get_sample_group(sample):
+    searches = {}
+    # Match pattern order
+    # Elements in the innermost lists are ORd
+    # The list elements in main list are ANDd
+    # Higgs -> tautau
+    searches['Htt'] = [ ['H125'],['tautau','tt'] ]
+    # Higgs -> WW
+    searches['HWW'] = [ ['H125'],['WW'] ]
+    # Z -> tautau + jets
+    # Z -> tautau + jets
+    searches['Ztt'] = [['Ztautau','Ztt']]
+    # Z -> ee + jets
+    searches['Zee'] = [['Zee']]
+    # Z -> mumu + jets
+    searches['Zmumu'] = [['Zmumu','Zmm']]
+    # Z -> vv + jets
+    searches['Znunu'] = [['Znunu']]
+    # W + jets
+    searches['Wjets'] = [['Wplus','Wminus','W(e|mu|tau)nu']]
+    # ttbar
+    searches['ttbar'] = [['ttbar']]
+    # single top
+    searches['Single top'] = [['top','antitop','atop']]
+    # Diboson
+    searches['Diboson'] = [['!H125'],['WW','ZZ','WZ','ZW','[lv]{4}','[WZ][pqlv]*[WZ]']]
+    # Signal: LFV Higgs
+    searches['LFV Higgs'] = [['H125'],['taue','etau','mutau','taumu']]
+
+    matched_category = []
+    for category, search in searches.iteritems():
+        match_results = []
+        for must_match in search:
+            for possible_match in must_match:
+                if possible_match[0] == '!':
+                    found = not re.search(r'%s'%(possible_match[1:]),sample)
+                else:
+                    found = re.search(r'%s'%(possible_match),sample)
+                # if found, skip to next must_match
+                if found: 
+                    match_results.append(True)
+                    break
+            else:
+                # if not found, skip to next search
+                match_results.append(False)
+                break
+            # if match with all must_match, store category
+        if all(match_results):
+            matched_category.append(category)
+    if len(matched_category) == 0:
+        return 'Other'
+    elif len(matched_category) == 1:
+        return matched_category[0]
+    else:
+        comb_str = 'Double Matched: '
+        for i, category in enumerate(matched_category):
+            if i:
+                comb_str += ', '
+            comb_str += category
+        return comb_str
+
 
 if __name__ == '__main__':
     main()

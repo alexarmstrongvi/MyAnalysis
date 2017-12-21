@@ -10,8 +10,8 @@ input_files = analysis_dir+'inputs_LFV/'
 output_dir = analysis_run_dir+'outputs/'
 dsid_dir = analysis_run_dir+'dsid_filelist/'
 
-HistOp1D = namedtuple('HistOp1D', 'nBinsX, x0, x1, xUnits, xLabel, yUnits, yLabel')
-HistOp1D.__new__.__defaults__= (25,0,-1,'','','','Events')
+HistOp1D = namedtuple('HistOp1D', 'nBinsX, x0, x1, xUnits, xLabel, yLabel')
+HistOp1D.__new__.__defaults__= (25,0,-1,'','','Events')
 
 S2L_trigger = '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)&&treatAsYear==2015)||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)&&treatAsYear==2016))'
 S2L_ptCuts  = 'l_pt[0]>25.&&l_pt[1]>20.&&MLL>40.'
@@ -107,24 +107,24 @@ HistOpMap = {
     'el0_track_pt'    : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='Leading electron track p_{T}',      yLabel='Events'),
     'el0_clus_pt'     : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='Leading electron cluster p_{T}',    yLabel='Events'),
     'l_eta'           : HistOp1D(nBinsX=20, x0=-3.0, x1=3.0,   xUnits='',    xLabel='Lepton #eta',                       yLabel='Events'),
-    'l_phi'           : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='Lepton #phi',                       yLabel='Events'),
+    'l_phi'           : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='Lepton #phi',                       yLabel='Events'),
     'l_flav'          : HistOp1D(nBinsX=5,  x0=-0.5, x1=4.5,   xUnits='',    xLabel='Lepton flavor (0: e, 1: m)',        yLabel='Events'),
     'l_type'          : HistOp1D(nBinsX=5,  x0=-0.5, x1=4.5,   xUnits='',    xLabel='Lepton type',                       yLabel='Events'),
     'l_origin'        : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='',    xLabel='Lepton origin',                     yLabel='Events'),
     'l_q'             : HistOp1D(nBinsX=3,  x0=-1.5, x1=1.5,   xUnits='',    xLabel='Lepton charge',                     yLabel='Events'),
     'LepLepSign'      : HistOp1D(nBinsX=3,  x0=-1.5, x1=1.5,   xUnits='',    xLabel='Leptons sign product',              yLabel='Events'),
     'MET'             : HistOp1D(nBinsX=20, x0=0.0,  x1=200.0, xUnits='GeV', xLabel='E_{T}^{miss}',                      yLabel='Events'),
-    'METPhi'          : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='MET_{#phi}',                        yLabel='Events'),
+    'METPhi'          : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='MET_{#phi}',                        yLabel='Events'),
     'Lep0Pt'          : HistOp1D(nBinsX=20, x0=0.0,  x1=200.0, xUnits='GeV', xLabel='p_{T}^{leading lep}',               yLabel='Events'),
     'Lep1Pt'          : HistOp1D(nBinsX=20, x0=0.0,  x1=100.0, xUnits='GeV', xLabel='p_{T}^{subleading lep}',            yLabel='Events'),
     'Lep0Eta'         : HistOp1D(nBinsX=20, x0=-3.0, x1=3.0,   xUnits='',    xLabel='#eta^{leading lep}',                yLabel='Events'),
     'Lep1Eta'         : HistOp1D(nBinsX=20, x0=-3.0, x1=3.0,   xUnits='',    xLabel='#eta^{subleading lep}',             yLabel='Events'),
-    'Lep0Phi'         : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='#phi^{leading lep}',                yLabel='Events'),
-    'Lep1Phi'         : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='#phi^{subleading lep}',             yLabel='Events'),
+    'Lep0Phi'         : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#phi^{leading lep}',                yLabel='Events'),
+    'Lep1Phi'         : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#phi^{subleading lep}',             yLabel='Events'),
     'MLep0'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='m_{T}(l_{0},MET)',                  yLabel='Events'),
     'MLep1'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='m_{T}(l_{1},MET)',                  yLabel='Events'),
     'DEtaLL'          : HistOp1D(nBinsX=20, x0=0.0,  x1=6.0,   xUnits='',    xLabel='#Delta#eta_{ll}',                   yLabel='Events'),
-    'DphiLL'          : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='#Delta#phi_{ll}',                   yLabel='Events'),
+    'DphiLL'          : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#Delta#phi_{ll}',                   yLabel='Events'),
     'drll'            : HistOp1D(nBinsX=20, x0=0.0,  x1=6.0,   xUnits='',    xLabel='#DeltaR_{ll}',                      yLabel='Events'),
     'dilep_flav'      : HistOp1D(nBinsX=5,  x0=-0.5, x1=4.5,   xUnits='',    xLabel='Dilepton flavor',                   yLabel='Events'),
     'isEM'            : HistOp1D(nBinsX=5,  x0=-1.5, x1=3.5,   xUnits='',    xLabel='Dilepton flavor is el mu',          yLabel='Events'),
@@ -135,8 +135,8 @@ HistOpMap = {
     'MLL'             : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='M_{ll}',                            yLabel='Events'),
     'ptll'            : HistOp1D(nBinsX=20, x0=0.0,  x1=200.0, xUnits='GeV', xLabel='pT_{ll}',                           yLabel='Events'),
     'dpt_ll'          : HistOp1D(nBinsX=20, x0=0.0,  x1=150.0, xUnits='GeV', xLabel='#Deltap_{T}^{ll}',                  yLabel='Events'),
-    'DphiLep0MET'     : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='#Delta#phi(l_{0},MET)',             yLabel='Events'),
-    'DphiLep1MET'     : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='#Delta#phi(l_{1},MET)',             yLabel='Events'),
+    'DphiLep0MET'     : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#Delta#phi(l_{0},MET)',             yLabel='Events'),
+    'DphiLep1MET'     : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#Delta#phi(l_{1},MET)',             yLabel='Events'),
     'JetN'            : HistOp1D(nBinsX=8,  x0=-0.5, x1=7.5,   xUnits='',    xLabel='N_{base jet}',                      yLabel='Events'),
     'Jet_N2p4Eta25Pt' : HistOp1D(nBinsX=8,  x0=-0.5, x1=7.5,   xUnits='',    xLabel='N_{jet} (p_{T}>25GeV, |#eta|<2.5)', yLabel='Events'),
     'SignalJetN'      : HistOp1D(nBinsX=8,  x0=-0.5, x1=7.5,   xUnits='',    xLabel='N_{sig jets}',                      yLabel='Events'),
@@ -152,7 +152,7 @@ HistOpMap = {
     'j_eta'           : HistOp1D(nBinsX=20, x0=-3.0, x1=3.0,   xUnits='',    xLabel='Jet #eta',                          yLabel='Events'),
     'j_jvt'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='',    xLabel='Jet JVT',                           yLabel='Events'),
     'j_jvf'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='',    xLabel='Jet JVF',                           yLabel='Events'),
-    'j_phi'           : HistOp1D(nBinsX=30, x0=0.0,  x1=2.29,  xUnits='',    xLabel='Jet #phi',                          yLabel='Events'),
+    'j_phi'           : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='Jet #phi',                          yLabel='Events'),
     'j_flav'          : HistOp1D(nBinsX=5,  x0=-0.5, x1=4.5,   xUnits='',    xLabel='Jet flavor (0:NA,1:CL,2:CB,3:F)',   yLabel='Events'),
     'pass_HLT_mu18_mu8noL1'                 : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='mu18 mu8noL1 trigger bit',                 yLabel='Events'),
     'pass_HLT_2e12_lhloose_L12EM10VH'       : HistOp1D(nBinsX=5, x0=-1.5, x1=3.5, xUnits='', xLabel='2e12 lhloose L12EM10VH trigger bit',       yLabel='Events'),
