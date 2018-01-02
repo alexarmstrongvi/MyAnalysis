@@ -6,7 +6,6 @@ Copyright: (C) Dec 8th, 2017; University of California, Irvine
 from argparse import ArgumentParser
 from collections import namedtuple
 import ROOT
-import tabulate
 import global_variables as G
 
 
@@ -29,12 +28,16 @@ def main():
     parser.add_argument('-c', '--channels',\
                       default='',\
                       help='csv list of channels for the yield table')
+    parser.add_argument('-b', '--blind_regions',\
+                      default='',\
+                      help='csv list of blinded regions')
     args = parser.parse_args()
 
     ifile_name = args.file
     sample_list  = [x.strip() for x in args.samples.split(",")]
     region_list  = [x.strip() for x in args.regions.split(",")]
     channel_list = [x.strip() for x in args.channels.split(",")]
+    blind_list   = [x.strip() for x in args.blind_regions.split(",")]
 
     # Initialize
     ifile = ROOT.TFile(ifile_name, 'READ')
@@ -51,9 +54,8 @@ def main():
     # Main looper
     for region in region_list:
         print '\n\n============================================'
-        print 'Region: %s'%region
         for channel in channel_list:
-            print '\tChannel: %s'%channel
+            print 'Region: %s, Channel: %s'%(region, channel)
             yield_dict = {}
             mc_total = Yields(value=0,error=0)
             for sample in sample_list:
@@ -69,7 +71,9 @@ def main():
                 if signal_sample_name in sample:
                     selection += '*%s*%s*eventweight'%(G.luminosity, G.BR)
                 elif data_sample_name in sample:
-                    pass
+                    if region in blind_list:
+                        print "Blinding ", region
+                        selection = '0'
                 else:
                     selection += '*%s*eventweight'%(G.luminosity)
                 ttree.Draw(draw_str, selection, 'goff')
@@ -77,10 +81,17 @@ def main():
                 integral = hist.IntegralAndError(0, -1, error)
 
                 # Store results
-                print "\t%*s = %*.2f +/- %*.2f"%(
-                        15, sample, 10, integral, 10, error)
-                ofile.write('%s,%s,%s,%f,%f\n'%(
-                    region, channel, sample, integral, error))
+                if integral > 0:
+                    print "%*s = %*.2f +/- %*.2f"%(
+                            15, sample, 10, integral, 10, error)
+                    ofile.write('%s,%s,%s,%f,%f\n'%(
+                        region, channel, sample, integral, error))
+                else:
+                    print "Integral  = ", integral
+                    print "%*s = %*s +/- %*s"%(15, sample, 10, '-', 10, '-')
+                    ofile.write('%s,%s,%s,-,-\n'%(
+                        region, channel, sample))
+
                 yield_dict[sample] = Yields(value=integral, error=error)
                 if data_sample_name not in sample and signal_sample_name not in sample:
                     mc_zip = zip(mc_total, yield_dict[sample])
@@ -89,16 +100,16 @@ def main():
                     mc_total = Yields._make(tmp_sum)
                 hist.Clear()
             yield_dict['MC_total'] = mc_total
-            print "\t%*s = %*.2f +/- %*.2f"%(
+            print "%*s = %*.2f +/- %*.2f"%(
                     15,'MC Total', 10, mc_total.value, 10, mc_total.error)
             ofile.write('%s,%s,MC_total,%f,%f\n'%(
                 region, channel, mc_total.value, mc_total.error))
             data_yield = float(yield_dict[data_sample_name].value)
             yield_dict['data_MC_ratio'] = data_yield / mc_total.value 
-            print "\t%*s = %.4f"%(15,'MC/Data',yield_dict['data_MC_ratio'])
-            ofile.write('%s,%s,Data/MC,%f\n'%(
+            print "%*s = %.4f"%(15,'MC/Data',yield_dict['data_MC_ratio'])
+            ofile.write('%s,%s,Data/MC,%f,-\n'%(
                 region, channel, yield_dict['data_MC_ratio']))
-        print "\n...Output written to", output_file_name
+    print "\n...Output written to", output_file_name
     ofile.close()
 
 if __name__ == '__main__':

@@ -67,18 +67,15 @@ Sel = {
     'Baseline'  : 'l_pt[0] >= 45 && l_pt[1] >= 15 '
                    + '&& 30 < MLL && MLL < 150 '
                    + '&& nCentralBJets==0 '
-                   + '&& (dilep_flav != 0 || (el0_track_pt/el0_clus_pt) < 1.2) '
-                   + '&& ' + DF_OS,
-    'VBF'       : 'JetN_g30 >= 2 '
-                  + '&& j_pt[0] > 40 '
-                  + '&& Mjj > 400 '
-                  + '&& DEtaJJ > 3',
+                   + '&& (dilep_flav != 0 || (el0_track_pt/el0_clus_pt) < 1.2) ',
     'emu'       : 'dilep_flav == 0',
     'mue'       : 'dilep_flav == 1',
     'ee'        : 'dilep_flav == 2',
     'mumu'      : 'dilep_flav == 3',
     }
-Sel['Optimized'] = "!(%s) && DphiLep1MET <= 1 && l_pt[0] > 50 && l_pt[1] < 40 && ((MET+l_pt[1])/l_pt[1]) > 0.5"%Sel['VBF']
+Sel['VBF_raw'] = "JetN_g30 >= 2 && j_pt[0] > 40 && Mjj > 400 && DEtaJJ > 3"
+Sel['VBF'] = "(%s) && (%s)"%(Sel['Baseline'],Sel['VBF_raw'])
+Sel['Optimized'] = "(%s) && !(%s) && DphiLep1MET < 1 && MtLep0 > 50 && MtLep1 < 40 && ((MET+l_pt[1])/l_pt[1]) > 0.5"%(Sel['Baseline'],Sel['VBF_raw'])
 trigger_sel_name = 'singlelep_trig'
 trigger_selection = Sel[trigger_sel_name]
 
@@ -121,8 +118,8 @@ HistOpMap = {
     'Lep1Eta'         : HistOp1D(nBinsX=20, x0=-3.0, x1=3.0,   xUnits='',    xLabel='#eta^{subleading lep}',             yLabel='Events'),
     'Lep0Phi'         : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#phi^{leading lep}',                yLabel='Events'),
     'Lep1Phi'         : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#phi^{subleading lep}',             yLabel='Events'),
-    'MLep0'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='m_{T}(l_{0},MET)',                  yLabel='Events'),
-    'MLep1'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='m_{T}(l_{1},MET)',                  yLabel='Events'),
+    'MLep0'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='M_{l0}',                            yLabel='Events'),
+    'MLep1'           : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='M_{l1}',                            yLabel='Events'),
     'DEtaLL'          : HistOp1D(nBinsX=20, x0=0.0,  x1=6.0,   xUnits='',    xLabel='#Delta#eta_{ll}',                   yLabel='Events'),
     'DphiLL'          : HistOp1D(nBinsX=30, x0=0.0,  x1=3.15,  xUnits='',    xLabel='#Delta#phi_{ll}',                   yLabel='Events'),
     'drll'            : HistOp1D(nBinsX=20, x0=0.0,  x1=6.0,   xUnits='',    xLabel='#DeltaR_{ll}',                      yLabel='Events'),
@@ -130,8 +127,8 @@ HistOpMap = {
     'isEM'            : HistOp1D(nBinsX=5,  x0=-1.5, x1=3.5,   xUnits='',    xLabel='Dilepton flavor is el mu',          yLabel='Events'),
     'isME'            : HistOp1D(nBinsX=5,  x0=-1.5, x1=3.5,   xUnits='',    xLabel='Dilepton flavor is mu el',          yLabel='Events'),
     'MCollASym'       : HistOp1D(nBinsX=25, x0=0.0,  x1=250.0, xUnits='GeV', xLabel='LFV Collinear Mass m_{coll}',       yLabel='Events'),
-    'MtLep0'          : HistOp1D(nBinsX=15, x0=0.0,  x1=250.0, xUnits='GeV', xLabel='M_{T,l0}',                          yLabel='Events'),
-    'MtLep1'          : HistOp1D(nBinsX=20, x0=0.0,  x1=140.0, xUnits='GeV', xLabel='M_{T,l1}',                          yLabel='Events'),
+    'MtLep0'          : HistOp1D(nBinsX=15, x0=0.0,  x1=250.0, xUnits='GeV', xLabel='m_{T}(l_{0},MET)',                  yLabel='Events'),
+    'MtLep1'          : HistOp1D(nBinsX=20, x0=0.0,  x1=140.0, xUnits='GeV', xLabel='m_{T}(l_{1},MET)',                  yLabel='Events'),
     'MLL'             : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='GeV', xLabel='M_{ll}',                            yLabel='Events'),
     'ptll'            : HistOp1D(nBinsX=20, x0=0.0,  x1=200.0, xUnits='GeV', xLabel='pT_{ll}',                           yLabel='Events'),
     'dpt_ll'          : HistOp1D(nBinsX=20, x0=0.0,  x1=150.0, xUnits='GeV', xLabel='#Deltap_{T}^{ll}',                  yLabel='Events'),

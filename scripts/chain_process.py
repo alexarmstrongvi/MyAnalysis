@@ -11,6 +11,7 @@ import global_variables as _g
 
 output_filelist = [ "Signal",
                     "HWW",
+                    "Htt",
                     "Top",
                     "Diboson",
                     "Zll_ZEW",

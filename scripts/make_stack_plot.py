@@ -14,7 +14,7 @@ def main():
     parser.add_argument('file',
                       help='Input .root file with different samples')
     parser.add_argument('variable',
-                      help='csv list of samples for the yield table')
+                      help='variable to be plotted')
     parser.add_argument('-r', '--region',\
                       default='',\
                       help='region choice from global_variables')
@@ -22,7 +22,7 @@ def main():
                       default='',\
                       help='channel choice (ee,emu,mue,mumu)')
     parser.add_argument('--verbose',\
-                      type=bool, default=False,\
+                      action='store_true',\
                       help='Run with additional printouts')
     args = parser.parse_args()
 
@@ -67,6 +67,7 @@ def main():
         ('Top', 0.),
         ('Zll_ZEW', 0.),
         ('Ztt_ZttEW', 0.),
+        ('Htt', 0.),
         (data_sample, 0.),
         (signal_sample, 0.)
         ])
@@ -75,6 +76,7 @@ def main():
         data_sample : ROOT.kBlack ,
         'Wjets'     : ROOT.kOrange,
         'HWW'       : ROOT.kBlue+3,
+        'Htt'       : ROOT.kRed,
         'Top'       : ROOT.kOrange+2 ,
         'Diboson'   : ROOT.kSpring-6,
         'Ztt_ZttEW' : ROOT.kAzure-5,
@@ -85,6 +87,7 @@ def main():
         data_sample : 'Data 2015/2016' ,
         'Wjets'     : 'W+jets' ,
         'HWW'       : 'HWW',
+        'Htt'       : 'H#rightarrow#tau_{lep}#tau_{lep}',
         'Top'       : 'Top',
         'Diboson'   : 'Di-Boson',
         'Ztt_ZttEW' : 'Z#rightarrow#tau#tau',
@@ -119,19 +122,19 @@ def main():
         if not ttree:
             print "%s not found in %s"%(sample,ifile_name) 
         # Set/Create Event List
-        list_name = 'list_%s_%s_%s_%s'%(
-                sample,region,channel,G.trigger_sel_name)
-        save_name = G.analysis_run_dir + 'lists/' + list_name + '.root'
-        if os.path.isfile(save_name):
-            rfile = ROOT.TFile.Open(save_name)
-            elist = rfile.Get(list_name)
-            ttree.SetEventList(elist)
-        else:
-            draw_list = '>> ' + list_name
-            ttree.Draw(draw_list, ROOT.TCut(sel))
-            elist = ROOT.gROOT.FindObject(list_name)
-            ttree.SetEventList(elist)
-            elist.SaveAs(save_name)
+       # list_name = 'list_%s_%s_%s_%s'%(
+       #         sample,region,channel,G.trigger_sel_name)
+       # save_name = G.analysis_run_dir + 'lists/' + list_name + '.root'
+       # if os.path.isfile(save_name):
+       #     rfile = ROOT.TFile.Open(save_name)
+       #     elist = rfile.Get(list_name)
+       #     ttree.SetEventList(elist)
+       # else:
+       #     draw_list = '>> ' + list_name
+       #     ttree.Draw(draw_list, ROOT.TCut(sel))
+       #     elist = ROOT.gROOT.FindObject(list_name)
+       #     ttree.SetEventList(elist)
+       #     elist.SaveAs(save_name)
 
         # Initizlize Histogram
         hname = 'hist_%s'%(sample)
