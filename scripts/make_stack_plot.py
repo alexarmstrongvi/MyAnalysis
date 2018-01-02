@@ -1,3 +1,10 @@
+"""
+Program: make_stack_plot.py
+Author: Alex Armstrong <alarmstr@cern.ch>
+Copyright: (C) Dec 21st, 2017; University of California, Irvine
+Plotting script for stack plots
+"""
+
 import os,sys,ROOT,math
 from collections import OrderedDict
 from argparse import ArgumentParser
@@ -117,7 +124,7 @@ def main():
 
         ttree = inputFile.Get(sample)
         if not ttree:
-            print "%s not found in %s"%(sample,ifile_name) 
+            print "%s not found in %s"%(sample,ifile_name)
         # Set/Create Event List
         list_name = 'list_%s_%s_%s_%s'%(
                 sample,region,channel,G.trigger_sel_name)
@@ -227,7 +234,7 @@ def main():
     sampleList[data_sample].Draw('p')
     sampleList[data_sample].GetXaxis().SetLabelOffset(10)
     sampleList[data_sample].GetYaxis().SetTitle(ylabel)
-    sampleList[data_sample].SetMaximum(1.5*max) 
+    sampleList[data_sample].SetMaximum(1.5*max)
     stack.Draw('same && hists')
     sampleList[data_sample].Draw('p && same')
     sampleList[signal_sample].Draw('HIST && SAME')
@@ -285,4 +292,5 @@ def buildRatioErrorBand(inputGraph, outputGraph):
         #print 'EYlow: ' + str(outputGraph.GetEYlow()[binN]) + ', EYhigh: ' + str(outputGraph.GetEYhigh()[binN])
 
 if __name__ == "__main__":
+    # Do not execute main() when script is imported as a module
     main()

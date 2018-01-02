@@ -10,9 +10,6 @@ input_files = analysis_dir+'inputs_LFV/'
 output_dir = analysis_run_dir+'outputs/'
 dsid_dir = analysis_run_dir+'dsid_filelist/'
 
-HistOp1D = namedtuple('HistOp1D', 'nBinsX, x0, x1, xUnits, xLabel, yLabel')
-HistOp1D.__new__.__defaults__= (25,0,-1,'','','Events')
-
 S2L_trigger = '(((pass_HLT_2e12_lhloose_L12EM10VH||pass_HLT_e17_lhloose_mu14||pass_HLT_mu18_mu8noL1)&&treatAsYear==2015)||((pass_HLT_2e17_lhvloose_nod0||pass_HLT_e17_lhloose_nod0_mu14||pass_HLT_mu22_mu8noL1)&&treatAsYear==2016))'
 S2L_ptCuts  = 'l_pt[0]>25.&&l_pt[1]>20.&&MLL>40.'
 S2L_isOS    = '(l_q[0]*l_q[1])<0'
@@ -91,6 +88,9 @@ luminosity = "36180" # ipb
 BR = '0.01'
 
 histMaxY = {}
+
+HistOp1D = namedtuple('HistOp1D', 'nBinsX, x0, x1, xUnits, xLabel, yLabel')
+HistOp1D.__new__.__defaults__= (25,0,-1,'','','Events')
 
 HistOpMap = {
     'RunNumber'       : HistOp1D(nBinsX=25, x0=0.0,  x1=-1,    xUnits='',    xLabel='Event run number',                  yLabel='Events'),

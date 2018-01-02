@@ -1,5 +1,13 @@
 #!/bin/bash/env python
+"""
+Program: compare_sample_list21.py
+Author: Alex Armstrong <alarmstr@cern.ch>
+Copyright: (C) Dec 21st, 2017; University of California, Irvine
 
+Takes two txt files of sample containers and compares them,
+writing out samples that are shared by and unique to the
+input files. It also groups the samples into categories
+"""
 import os
 import sys
 from argparse import ArgumentParser
@@ -30,7 +38,7 @@ def main():
     if exit: sys.exit()
 
     #Get output name
-    output_name = args.output 
+    output_name = args.output
     name0 = args.file0.strip().split('/')[-1].split('.')[-2]
     name1 = args.file1.strip().split('/')[-1].split('.')[-2]
     if not output_name:
@@ -42,7 +50,7 @@ def main():
 
     for file_name in [args.file0, args.file1]:
         txt_file = open(file_name,'r')
-        sample_list = [x.strip() for x in txt_file.readlines()] 
+        sample_list = [x.strip() for x in txt_file.readlines()]
         if args.trim:
             sample_list = [tools.trim_sample_name(x) for x in sample_list]
         dsid_sample_map = tools.get_dsid_sample_map(sample_list)
@@ -53,9 +61,9 @@ def main():
             dsid_grouping_map[dsid] = group
         grouping_maps.append(dsid_grouping_map)
         txt_file.close()
-    
+
     # Get unique and shared DSIDs
-    file0_dsids, file1_dsids = tools.get_unique_elements(sample_maps[0],sample_maps[1]) 
+    file0_dsids, file1_dsids = tools.get_unique_elements(sample_maps[0],sample_maps[1])
     shared_dsids = tools.get_shared_elements(sample_maps[0],sample_maps[1])
 
     # Group samples
@@ -85,16 +93,16 @@ def main():
     # as well as the break down of each into sample groups
     total_dsids = len(shared_dsids) + len(file0_dsids) + len(file1_dsids)
     ofile.write('Total files: %d\n'%total_dsids)
-    ofile.write('\tShared files: %d\n'%len(shared_dsids)) 
-    for group, sample_list in shared_dsids_grouped.iteritems():    
+    ofile.write('\tShared files: %d\n'%len(shared_dsids))
+    for group, sample_list in shared_dsids_grouped.iteritems():
         ofile.write('\t\t%*s: %d\n'%(-20,group,len(sample_list)))
     ofile.write('\t%s files: %d\n'%(name0,len(file0_dsids)))
-    for group, sample_list in file0_dsids_grouped.iteritems():    
+    for group, sample_list in file0_dsids_grouped.iteritems():
         ofile.write('\t\t%*s: %d\n'%(-20,group,len(sample_list)))
     ofile.write('\t%s files: %d\n'%(name1,len(file1_dsids)))
-    for group, sample_list in file1_dsids_grouped.iteritems():    
+    for group, sample_list in file1_dsids_grouped.iteritems():
         ofile.write('\t\t%*s: %d\n'%(-20,group,len(sample_list)))
-    # Write out sample names under groups  
+    # Write out sample names under groups
     ofile.write('\n\n++++++++++++++++ Shared DSIDs ++++++++++++++++\n')
     for group, sample_list in shared_dsids_grouped.iteritems():
         ofile.write('\n\t===== %s =====\n'%group)
@@ -110,13 +118,12 @@ def main():
         ofile.write('\n\t===== %s =====\n'%group)
         for sample in sorted(sample_list):
             ofile.write('\t\t%s\n'%sample)
-            
-    print 'Output written to %s.txt'%output_name    
+
+    print 'Output written to %s.txt'%output_name
     ofile.close()
 
 
 
 if __name__ == '__main__':
-    # Do not run main when 
-    # script is imported as a module
+    # Do not execute main() when script is imported as a module
     main()

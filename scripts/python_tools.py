@@ -8,8 +8,8 @@ def main():
     print "Testing Tools"
     directory_with_subdir = 'LOCAL_inputs_LFV'
     directory_with_files = '/data/uclhc/uci/user/armstro1/SusyNt/analysis_n0232_run/scripts'
-    list_of_subdirectories = get_list_of_subdirectories(directory_with_subdir)    
-    list_of_files = get_list_of_files(directory_with_files)    
+    list_of_subdirectories = get_list_of_subdirectories(directory_with_subdir)
+    list_of_files = get_list_of_files(directory_with_files)
     print list_of_subdirectories
     print list_of_files
     list_of_files = strip_strings_to_substrings(list_of_files,'[aeiou]')
@@ -20,7 +20,7 @@ def get_list_of_subdirectories(directory,search_string='*/'):
     if not directory.endswith('/'): directory+='/'
     if not search_string.endswith('/'): search_string += '/'
     subdirectories = [(x.split('/')[-2]+'/') for x in glob.glob(directory+search_string)]
-    if len(subdirectories)==0: print "WARNING: %s has no subdirectories"%directory 
+    if len(subdirectories)==0: print "WARNING: %s has no subdirectories"%directory
     return subdirectories
 
 # output list of files in directory
@@ -42,7 +42,7 @@ def strip_string_to_substring(string,substring):
     match = re.search(r'%s'%(substring),string)
     if match:
         return match.group()
-    else: 
+    else:
         return ''
 
 def get_unique_elements(list1, list2):
@@ -63,6 +63,27 @@ def get_shared_elements(list1, list2):
             shared_list.append(x)
     return shared_list
 
+def all_elements_equal(input_list):
+    """ Checks if all elements in an iterable are the same"""
+    return len(set(input_list)) <= 1
+
+def good_matrix_shape(matrix):
+    """ Check if matrix has the same number of elements in each row"""
+    column_len = [len(x) for x in matrix]
+    return all_elements_equal(column_len)
+
+def get_matrix_shape(matrix):
+    """ Return matrix dimensions """
+    if not good_matrix_shape(matrix):
+        print "WARNING (get_matrix_shape) :: "\
+              "Input list of lists is not a matrix. "\
+              "Returning [0,0]"
+        return 0, 0
+    row_size = len(matrix)
+    column_size = len(matrix[0])
+    return row_size, column_size
+
+# Analysis specific
 def get_dsid_from_sample(sample):
     """ Extract DSID from sample name"""
     sample = sample.strip()
@@ -71,7 +92,7 @@ def get_dsid_from_sample(sample):
 
 
 def get_dsid_sample_map(sample_list):
-    """ 
+    """
     Get map of DSIDs to full sample name
     given a list of full sample names
     """
@@ -92,7 +113,7 @@ def trim_sample_name(sample):
         return sample
     sample = sample.split('.')[:-1]
     sample = '.'.join(sample)
-    return sample 
+    return sample
 
 def get_sample_group(sample):
     searches = {}
@@ -133,7 +154,7 @@ def get_sample_group(sample):
                 else:
                     found = re.search(r'%s'%(possible_match),sample)
                 # if found, skip to next must_match
-                if found: 
+                if found:
                     match_results.append(True)
                     break
             else:
