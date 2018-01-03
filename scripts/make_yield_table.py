@@ -47,7 +47,7 @@ def main():
     draw_str = 'isMC>>%s'%hname
     ofile = open(output_file_name, 'w')
     ofile.write("YieldTable\n")
-    ofile.write("Region,Channel,Sample,Yield,Uncertainty\n")
+    #ofile.write("Region,Channel,Sample,Yield,Uncertainty\n")
     Yields = namedtuple('Yields',['value','error'])
 
     #------------------------------------------------------------------------->>
@@ -87,9 +87,9 @@ def main():
                     ofile.write('%s,%s,%s,%f,%f\n'%(
                         region, channel, sample, integral, error))
                 else:
-                    print "Integral  = ", integral
+                    #print "Integral  = ", integral
                     print "%*s = %*s +/- %*s"%(15, sample, 10, '-', 10, '-')
-                    ofile.write('%s,%s,%s,-,-\n'%(
+                    ofile.write('%s,%s,%s,0,0\n'%(
                         region, channel, sample))
 
                 yield_dict[sample] = Yields(value=integral, error=error)
