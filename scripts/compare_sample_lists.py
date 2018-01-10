@@ -51,8 +51,10 @@ def main():
     for file_name in [args.file0, args.file1]:
         txt_file = open(file_name,'r')
         sample_list = [x.strip() for x in txt_file.readlines()]
+        sample_list = [x for x in sample_list if tools.get_dsid_from_sample(x)]
         if args.trim:
             sample_list = [tools.trim_sample_name(x) for x in sample_list]
+        sample_list = [x for x in sample_list if x]
         dsid_sample_map = tools.get_dsid_sample_map(sample_list)
         sample_maps.append(dsid_sample_map)
         dsid_grouping_map = {}
@@ -71,6 +73,9 @@ def main():
     for dsid in shared_dsids:
        group = grouping_maps[0][dsid]
        sample = sample_maps[0][dsid]
+       if len(sample) == 6:
+           group = grouping_maps[1][dsid]
+           sample = sample_maps[1][dsid]
        shared_dsids_grouped[group].append(sample)
     file0_dsids_grouped = defaultdict(list)
     for dsid in file0_dsids:

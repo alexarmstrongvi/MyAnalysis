@@ -58,7 +58,7 @@ def main():
     G.setATLASStyle()
 
     # Other options
-    blind_sig = False
+    blind_sig = True
     mass_window = [100,150]
     output_dir = G.analysis_run_dir+"plots/"
     plot_name_prefix = "HiggsLFV_" # Prefix added to the name of all plots

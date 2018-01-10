@@ -63,6 +63,17 @@ def get_shared_elements(list1, list2):
             shared_list.append(x)
     return shared_list
 
+def get_duplicates(lst):
+    """ Find and return a list of duplicates for an input list"""
+    seen = set()
+    dups = []
+    for x in lst:
+        if x in seen:
+            dups.append(x)
+        else:
+            seen.add(x)
+    return dups
+
 def all_elements_equal(input_list):
     """ Checks if all elements in an iterable are the same"""
     return len(set(input_list)) <= 1
@@ -87,9 +98,11 @@ def get_matrix_shape(matrix):
 def get_dsid_from_sample(sample):
     """ Extract DSID from sample name"""
     sample = sample.strip()
-    search_str = '[0-9]{6}'
-    return strip_string_to_substring(sample,search_str)
-
+    search_str = '[0-9]{6}(?=\.)'
+    dsid = strip_string_to_substring(sample,search_str)
+    if not dsid:
+        dsid = strip_string_to_substring(sample,'[0-9]{6}')
+    return dsid
 
 def get_dsid_sample_map(sample_list):
     """
@@ -99,18 +112,28 @@ def get_dsid_sample_map(sample_list):
     dsid_sample_map = {}
     for sample in sample_list:
         dsid = get_dsid_from_sample(sample)
+        if not dsid:
+            continue
         if dsid in dsid_sample_map:
-            print 'WARNING :: DSID %d is duplicated'
-        elif len(dsid) == 6:
-            dsid_sample_map[dsid] = sample
+            print 'WARNING :: DSID %s is duplicated'%dsid
+        dsid_sample_map[dsid] = sample
     return dsid_sample_map
 
 def trim_sample_name(sample):
     dsid = get_dsid_from_sample(sample)
+    if not dsid:
+        print 'WARNING (trim_sample_name) :: '\
+              'Input sample name has no DSID'
+        return ''
     pos = sample.find(dsid)
     sample = sample[pos:]
+    # sample names are just DSIDs
+    if len(sample) == 6:
+        return sample
+    # unexpected format with spaces
     if sample.find(' ') != -1:
         return sample
+    
     sample = sample.split('.')[:-1]
     sample = '.'.join(sample)
     return sample
@@ -120,6 +143,9 @@ def get_sample_group(sample):
     # Match pattern order
     # Elements in the innermost lists are ORd
     # The list elements in main list are ANDd
+    # Data
+    searches['data15'] = [['data15']]
+    searches['data16'] = [['data16']]
     # Higgs -> tautau
     searches['Htt'] = [ ['H125'],['tautau','tt'] ]
     # Higgs -> WW
@@ -165,7 +191,7 @@ def get_sample_group(sample):
         if all(match_results):
             matched_category.append(category)
     if len(matched_category) == 0:
-        return 'Other'
+        return 'Unknown'
     elif len(matched_category) == 1:
         return matched_category[0]
     else:
