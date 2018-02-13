@@ -26,7 +26,7 @@ def get_local_samples_map():
         Map keys are the sample groups.
         Directory storing local files defined in global module.
     """
-    samples_map = defaultdict(list)      
+    samples_map = defaultdict(list)
     for key, group in g.LOCAL_DSID_SUBDIRS.items():
         #reject_dir = ((args.data and group != g.LOCAL_DSID_DIR['data'])
         #        or ((args.mc or args.bkgd) and group != g.LOCAL_DSID_DIR['mc']))
@@ -45,14 +45,14 @@ def get_fax_samples_map(store_empty=False):
         Map keys are the sample groups.
         Directory storing local files defined in global module.
     """
-    samples_map = defaultdict(list)      
+    samples_map = defaultdict(list)
     path = g.input_files
     for groups in tools.get_list_of_subdirectories(path):
         path = '%s%s/'%(path,groups)
         for sample in tools.get_list_of_files(path):
             path_to_file = '%s%s'%(path,sample)
             file_size = os.path.getsize(path_to_file)
-            if store_empty != (file_size <= 0): 
+            if store_empty != (file_size <= 0):
                 continue
             group_name = tools.get_sample_group(sample)
             samples_map[group_name].append(sample)
@@ -72,12 +72,12 @@ def get_todo_samples_map(args,to_dwnld=False,to_make=False):
                     dsid = str(sample)
                 else:
                     dsid = tools.get_dsid_from_sample(sample)
-                if not dsid: 
+                if not dsid:
                     continue
                 dsid_sample_map[key][dsid] = sample
 
     # Get relevent sets of DSIDs
-    samples_map = defaultdict(list)      
+    samples_map = defaultdict(list)
     fax_dsids = dsid_sample_map['fax']
     local_dsids = dsid_sample_map['local']
     for dsid in dsid_sample_map['desired']:
@@ -99,7 +99,7 @@ def get_todo_samples_map(args,to_dwnld=False,to_make=False):
 def main():
     """ Main function """
     print "\nMaking DSID list..."
-    
+
     parser = ArgumentParser()
     parser.add_argument('-o', '--output',
                         help='output path and file name')
@@ -129,7 +129,7 @@ def main():
                         help='output only mc DSIDs')
     args = parser.parse_args()
     output = args.output
-    
+
     # Checks
     if sum([args.data, args.bkgd, args.mc, args.dwnld]) > 1:
         print 'ERROR :: More than one DSID type specified.'\
