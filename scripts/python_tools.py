@@ -44,6 +44,75 @@ def strip_string_to_substring(string,substring):
         return match.group()
     else:
         return ''
+def pprint_dict(input_dict, tabs='', max_display=20):
+    if type(input_dict) is None:
+        return
+    elif type(input_dict) is not dict:
+        print('{}{}'.format(tabs,input_dict))
+        return
+
+    for key,val in input_dict.iteritems():
+        val_t = type(val)
+        print '{}{})'.format(tabs,key)
+        tabs += '\t'
+        if val_t is dict:
+            pprint_dict(val,tabs)
+        elif val_t is list:
+            counter = 0
+            prior_value = None
+            for x in val:
+                # Print dicts no matter what
+                if type(x) is dict:
+                    pprint_dict(prior_value,tabs)
+                    pprint_dict(x,tabs)
+                    counter = max_display-1
+                elif type(x) is list:
+                    pprint_dict(prior_value,tabs)
+                    print 'Not able to handle lists within lists'
+                    print '{}{})'.format(tabs,x[:max_display])
+                    counter = max_display-1
+                    return
+                # Skip non-dicts if max reached
+                if counter <= max_display:
+                    pprint_dict(x,tabs)
+
+                if counter == max_display:
+                    print '{}. . .'.format(tabs)
+                counter += 1
+                prior_value = x
+            else:
+                pprint_dict(x,tabs)
+                
+        else: 
+            pprint_dict(val,tabs)
+        tabs = tabs[1:] # remove one tab
+    return
+
+def to_ordinal(value):
+    """
+    Converts zero or a *postive* integer (or their string 
+    representations) to an ordinal value.
+
+    """
+    try:
+        value = int(value)
+    except ValueError:
+        print "ERROR (to_ordinal) :: Input value must be an integer"
+        return value
+
+    if value % 100//10 != 1:
+        if value % 10 == 1:
+            ordval = u"%d%s" % (value, "st")
+        elif value % 10 == 2:
+            ordval = u"%d%s" % (value, "nd")
+        elif value % 10 == 3:
+            ordval = u"%d%s" % (value, "rd")
+        else:
+            ordval = u"%d%s" % (value, "th")
+    else:
+        ordval = u"%d%s" % (value, "th")
+
+    return ordval
 
 def get_unique_elements(list1, list2):
     unique_list1 = []
