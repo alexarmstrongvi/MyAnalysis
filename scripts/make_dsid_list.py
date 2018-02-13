@@ -46,14 +46,16 @@ def get_fax_samples_map(store_empty=False):
         Directory storing local files defined in global module.
     """
     samples_map = defaultdict(list)      
-    path = g.input_files
-    for groups in tools.get_list_of_subdirectories(path):
-        path = '%s%s/'%(path,groups)
-        for sample in tools.get_list_of_files(path):
-            path_to_file = '%s%s'%(path,sample)
+    path1 = g.input_files
+    for groups in tools.get_list_of_subdirectories(path1):
+        path2 = '%s%s'%(path1,groups)
+        for sample in tools.get_list_of_files(path2):
+            path_to_file = '%s%s'%(path2,sample)
             file_size = os.path.getsize(path_to_file)
             if store_empty != (file_size <= 0): 
                 continue
+            if sample.endswith('.txt'):
+                sample = sample[:-4]
             group_name = tools.get_sample_group(sample)
             samples_map[group_name].append(sample)
     return samples_map
@@ -89,6 +91,12 @@ def get_todo_samples_map(args,to_dwnld=False,to_make=False):
         # Get full sample name from dsid if possible
         if to_dwnld:
             sample_name = dsid_sample_map['fax'][dsid]
+            sample_name += '_nt'
+            if 'SusyNt' in sample_name:
+                sample_name = 'group.phys-susy:' + sample_name 
+            else:
+                print 'Unknown scope name for', sample_name
+                sys.exit()
             group = tools.get_sample_group(sample_name)
         elif to_make:
             sample_name = dsid

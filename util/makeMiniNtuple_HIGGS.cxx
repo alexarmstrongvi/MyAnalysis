@@ -177,63 +177,67 @@ int main(int argc, char* argv[])
 
   *cutflow << CutName("read in") << [](Superlink* /*sl*/) -> bool { return true; };
 
-  //  Cleaning Cuts
-  int cutflags = 0;
+  // xTauFW Cuts
+  *cutflow << CutName("xTau: 2 Loose Leptons") << [&](Superlink* sl) -> bool {
+      uint nLooseLeptons = 0;
+      for (const auto* mu : *sl->preMuons) {if (mu->loose) nLooseLeptons++;}
+      for (const auto* ele : *sl->preElectrons) {if (ele->looseLLH) nLooseLeptons++;}
+      return nLooseLeptons == 2;
+  };
 
+  //  Cleaning Cuts
+  // How to add cutflow entry:
+  // Create lambda function that returns bool value of cut.
+  // Pass that with "<<" into the function CutName("Cut name").
+  // Pass that with "<<" into the dereferenced cutflow object.
+
+  int cutflags = 0;
+  
   *cutflow << CutName("Pass GRL") << [&](Superlink* sl) -> bool {
       cutflags = sl->nt->evt()->cutFlags[NtSys::NOM];
       return (sl->tools->passGRL(cutflags));
   };
-
   *cutflow << CutName("LAr error") << [&](Superlink* sl) -> bool {
       return (sl->tools->passLarErr(cutflags));
   };
-
   *cutflow << CutName("Tile error") << [&](Superlink* sl) -> bool {
       return (sl->tools->passTileErr(cutflags));
   };
-
   *cutflow << CutName("TTC veto") << [&](Superlink* sl) -> bool {
       return (sl->tools->passTTC(cutflags));
   };
-
-  *cutflow << CutName("SCT seu") << [&](Superlink* sl) -> bool {
+  *cutflow << CutName("SCT err") << [&](Superlink* sl) -> bool {
       return (sl->tools->passSCTErr(cutflags));
   };
-
+  *cutflow << CutName("nBaselineLep = nSignalLep") << [](Superlink* sl) -> bool {
+      return (sl->leptons->size() == sl->baseLeptons->size());
+  };
+  *cutflow << CutName("2+ leptons") << [](Superlink* sl) -> bool {
+      return (sl->leptons->size() >= 2);
+  };
+  *cutflow << CutName("Different flavor leptons") << [&](Superlink* sl) -> bool {
+      bool emu = sl->leptons->at(0)->isEle() && sl->leptons->at(1)->isMu();
+      bool mue = sl->leptons->at(0)->isMu() && sl->leptons->at(1)->isEle();
+      return emu || mue;
+  };
   *cutflow << CutName("pass good vertex") << [&](Superlink* sl) -> bool {
       return (sl->tools->passGoodVtx(cutflags));
   };
-
-  *cutflow << CutName("bad muon veto") << [&](Superlink* sl) -> bool {
-      return (sl->tools->passBadMuon(sl->preMuons));
-  };
-
-  *cutflow << CutName("pass cosmic veto") << [&](Superlink* sl) -> bool {
-      return (sl->tools->passCosmicMuon(sl->baseMuons));
-  };
-
   *cutflow << CutName("jet cleaning") << [&](Superlink* sl) -> bool {
       return (sl->tools->passJetCleaning(sl->baseJets));
   };
-
-  //*cutflow << CutName("exactly two baseline leptons") << [](Superlink* sl) -> bool {
-  //    return (sl->baseLeptons->size() == 2);
+  *cutflow << CutName("bad muon veto") << [&](Superlink* sl) -> bool {
+      return (sl->tools->passBadMuon(sl->preMuons));
+  };
+  //*cutflow << CutName("pass cosmic veto") << [&](Superlink* sl) -> bool {
+  //    return (sl->tools->passCosmicMuon(sl->baseMuons));
   //};
-
-  *cutflow << CutName("exactly two signal leptons") << [](Superlink* sl) -> bool {
+  *cutflow << CutName("2 leptons") << [](Superlink* sl) -> bool {
       return (sl->leptons->size() == 2);
   };
-  *cutflow << CutName("Different flavor leptons") << [&](Superlink* sl) -> bool {
-      return ((sl->leptons->at(0)->isEle() && sl->leptons->at(1)->isMu())  ||
-              (sl->leptons->at(1)->isEle() && sl->leptons->at(0)->isMu()));
+  *cutflow << CutName("Tau veto") << [](Superlink* sl) -> bool {
+      return (sl->taus->size() == 0);
   };
-  //*cutflow << CutName("leading lepton eta <= 2.47") << [](Superlink* sl) -> bool {
-  //    return (fabs(sl->leptons->at(0)->eta)<=2.47);
-  //};
-  //*cutflow << CutName("sub-leading lepton eta <= 2.47") << [](Superlink* sl) -> bool {
-  //    return (fabs(sl->leptons->at(1)->eta)<=2.47);
-  //};
 
 
   //  Output Ntuple Setup
